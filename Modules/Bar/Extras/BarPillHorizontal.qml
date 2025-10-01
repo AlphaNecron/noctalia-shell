@@ -18,6 +18,8 @@ Item {
   property bool rightOpen: false
   property bool hovered: false
   property bool compact: false
+  property var colorBg: null
+  property var colorFg: null
 
   // Effective shown state (true if hovered/animated open or forced)
   readonly property bool revealed: !forceClose && (forceOpen || showPill)
@@ -77,10 +79,6 @@ Item {
         // Better text horizontal centering
         var centerX = (parent.width - width) / 2
         var offset = rightOpen ? Style.marginXS * scaling : -Style.marginXS * scaling
-        if (forceOpen) {
-          // If its force open, the icon disc background is the same color as the bg pill move text slightly
-          offset += rightOpen ? -Style.marginXXS * scaling : Style.marginXXS * scaling
-        }
         return centerX + offset
       }
       text: root.text + root.suffix
@@ -112,7 +110,7 @@ Item {
     width: pillHeight
     height: pillHeight
     radius: width * 0.5
-    color: hovered ? Color.mTertiary : Settings.data.bar.showCapsule ? Color.mSurfaceVariant : Color.transparent
+    color: colorBg ?? (hovered ? Color.mTertiary : Settings.data.bar.showCapsule ? Color.mSurfaceVariant : Color.transparent)
     anchors.verticalCenter: parent.verticalCenter
 
     x: rightOpen ? 0 : (parent.width - width)
@@ -127,7 +125,7 @@ Item {
     NIcon {
       icon: root.icon
       pointSize: iconSize
-      color: hovered ? Color.mOnTertiary : Color.mOnSurface
+      color: colorFg ?? (hovered ? Color.mOnTertiary : Color.mOnSurface)
       // Center horizontally
       x: (iconCircle.width - width) / 2
       // Center vertically accounting for font metrics
@@ -216,6 +214,7 @@ Item {
     anchors.fill: parent
     hoverEnabled: true
     acceptedButtons: Qt.LeftButton | Qt.RightButton | Qt.MiddleButton
+    cursorShape: Qt.PointingHandCursor
     onEntered: {
       hovered = true
       root.entered()

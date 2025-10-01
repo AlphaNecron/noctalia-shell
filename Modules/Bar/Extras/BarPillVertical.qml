@@ -18,6 +18,8 @@ Item {
   property bool rightOpen: false
   property bool hovered: false
   property bool compact: false
+  property var colorBg: null
+  property var colorFg: null
 
   // Bar position detection for pill direction
   readonly property string barPosition: Settings.data.bar.position
@@ -91,10 +93,6 @@ Item {
       anchors.verticalCenter: parent.verticalCenter
       anchors.verticalCenterOffset: {
         var offset = openDownward ? pillPaddingVertical * 0.75 : -pillPaddingVertical * 0.75
-        if (forceOpen) {
-          // If its force open, the icon disc background is the same color as the bg pill move text slightly
-          offset += rightOpen ? -Style.marginXXS * scaling : Style.marginXXS * scaling
-        }
         return offset
       }
       text: root.text + root.suffix
@@ -135,7 +133,7 @@ Item {
     width: buttonSize
     height: buttonSize
     radius: width * 0.5
-    color: hovered ? Color.mTertiary : Settings.data.bar.showCapsule ? Color.mSurfaceVariant : Color.transparent
+    color: colorBg ?? (hovered ? Color.mTertiary : Settings.data.bar.showCapsule ? Color.mSurfaceVariant : Color.transparent)
 
     // Icon positioning based on direction
     x: 0
@@ -152,7 +150,7 @@ Item {
     NIcon {
       icon: root.icon
       pointSize: iconSize
-      color: hovered ? Color.mOnTertiary : Color.mOnSurface
+      color: colorFg ?? (hovered ? Color.mOnTertiary : Color.mOnSurface)
       // Center horizontally
       x: (iconCircle.width - width) / 2
       // Center vertically accounting for font metrics
@@ -257,6 +255,7 @@ Item {
     anchors.fill: parent
     hoverEnabled: true
     acceptedButtons: Qt.LeftButton | Qt.RightButton | Qt.MiddleButton
+    cursorShape: Qt.PointingHandCursor
     onEntered: {
       hovered = true
       root.entered()
