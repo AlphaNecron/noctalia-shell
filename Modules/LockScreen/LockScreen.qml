@@ -439,7 +439,7 @@ Loader {
                     spacing: Style.marginM * scaling
 
                     NText {
-                      text: Quickshell.env("USER") + "@noctalia:~$"
+                      text: Quickshell.env("USER") + "@zephyrus:~$"
                       color: Color.mPrimary
                       family: Settings.data.ui.fontFixed
                       pointSize: Style.fontSizeL * scaling
@@ -478,7 +478,7 @@ Loader {
                     spacing: Style.marginM * scaling
 
                     NText {
-                      text: Quickshell.env("USER") + "@noctalia:~$"
+                      text: Quickshell.env("USER") + "@zephyrus:~$"
                       color: Color.mPrimary
                       family: Settings.data.ui.fontFixed
                       pointSize: Style.fontSizeL * scaling
