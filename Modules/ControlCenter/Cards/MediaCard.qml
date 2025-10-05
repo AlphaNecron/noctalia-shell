@@ -50,6 +50,12 @@ NBox {
 
       visible: MediaService.currentPlayer && MediaService.canPlay
       spacing: Style.marginM * scaling
+      Layout.alignment: Qt.AlignHCenter
+
+      Item {
+        Layout.fillWidth: true
+        Layout.fillHeight: true
+      }
 
       // Player selector using NContextMenu
       Rectangle {
@@ -130,7 +136,6 @@ NBox {
           height: 90 * scaling
           radius: width * 0.5
           color: trackArt.visible ? Color.mPrimary : Color.transparent
-          clip: true
 
           // Can't use fallback icon here, as we have a big disc behind
           NImageCircled {
@@ -340,6 +345,11 @@ NBox {
         fillColor: Color.mPrimary
         Layout.alignment: Qt.AlignHCenter
       }
+    }
+
+    Item {
+      Layout.fillWidth: true
+      Layout.fillHeight: true
     }
   }
 }

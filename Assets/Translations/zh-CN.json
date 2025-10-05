@@ -79,6 +79,16 @@
             "description": "增大或减小等宽文本的尺寸"
           }
         }
+      },
+      "control-center": {
+        "section": {
+          "label": "控制中心",
+          "description": "配置控制中心面板的定位和行为。"
+        },
+        "position": {
+          "label": "位置",
+          "description": "选择控制中心面板打开时出现的位置。"
+        }
       }
     },
     "audio": {
@@ -488,9 +498,9 @@
           "label": "深色模式",
           "description": "切换到更暗的主题，便于夜间观看。"
         },
-        "enable-matugen": {
-          "label": "启用 Matugen",
-          "description": "根据您的活动壁纸自动生成颜色。"
+        "use-wallpaper-colors": {
+          "label": "使用壁纸颜色",
+          "description": "使用 Matugen 从壁纸生成颜色方案。自动提取颜色以创建一致的主题。"
         },
         "matugen-scheme-type": {
           "label": "Matugen 配色方案类型",
@@ -501,26 +511,20 @@
         "section": {
           "label": "预定义配色方案",
           "description": "从预定义配色方案集合中选择。"
+        },
+        "generate-templates": {
+          "label": "为预定义方案生成模板",
+          "description": "使用预定义配色方案时生成 Matugen 模板（GTK、终端主题等）。"
         }
       },
-      "matugen": {
-        "section": {
-          "label": "Matugen 模板",
-          "description": "将颜色应用于外部应用程序。"
-        },
+      "templates": {
         "ui": {
           "label": "用户界面",
           "description": "桌面环境和 UI 工具包主题。",
-          "gtk4": {
+          "gtk": {
             "description": "写入 {filepath}"
           },
-          "gtk3": {
-            "description": "写入 {filepath}"
-          },
-          "qt6": {
-            "description": "写入 {filepath}"
-          },
-          "qt5": {
+          "qt": {
             "description": "写入 {filepath}"
           }
         },
@@ -563,6 +567,10 @@
             "label": "用户模板",
             "description": "启用来自 ~/.config/matugen/config.toml 的用户定义 Matugen 配置"
           }
+        },
+        "section": {
+          "description": "将颜色应用于外部应用程序。",
+          "label": "模板"
         }
       }
     },
@@ -836,6 +844,10 @@
         "scrolling-mode": {
           "label": "滚动模式",
           "description": "控制何时为长窗口标题启用文本滚动。"
+        },
+        "width": {
+          "description": "控制小部件的水平尺寸。",
+          "label": "小部件宽度"
         }
       },
       "system-monitor": {
@@ -1037,7 +1049,8 @@
     "panel": {
       "title": "通知",
       "no-notifications": "无通知",
-      "description": "您的通知将在到达时显示在此处。"
+      "description": "您的通知将在到达时显示在此处。",
+      "click-to-expand": "点击展开"
     }
   },
   "wallpaper": {
@@ -1212,6 +1225,17 @@
         "center_right": "右侧居中"
       }
     },
+    "control-center": {
+      "position": {
+        "close_to_bar_button": "靠近栏按钮",
+        "top_left": "左上角",
+        "top_right": "右上角",
+        "bottom_left": "左下角",
+        "bottom_right": "右下角",
+        "bottom_center": "底部居中",
+        "top_center": "顶部居中"
+      }
+    },
     "osd": {
       "position": {
         "top_left": "左上角",
@@ -1307,7 +1331,7 @@
   },
   "system": {
     "uptime": "系统运行时间：{uptime}",
-    "welcome-back": "欢迎回来，{user}！",
+    "welcome-back": "欢迎回来，",
     "monitor-description": "{model} ({width}x{height})",
     "scaling-percentage": "{percentage}%",
     "location-display": "{name} ({coordinates})",
@@ -1325,7 +1349,10 @@
   "lock-screen": {
     "secure-terminal": "安全终端",
     "unlock-command": "sudo unlock-session",
-    "password": "密码：",
+    "password": "请输入密码...",
+    "welcome-back": "欢迎回来，",
+    "authenticating": "正在验证...",
+    "authentication-failed": "验证失败",
     "shut-down": "关机",
     "restart": "重启",
     "suspend": "挂起"
@@ -1342,10 +1369,10 @@
       "enabled": "已启用",
       "disabled": "已禁用"
     },
-    "matugen": {
-      "enabled": "已启用",
-      "disabled": "已禁用",
-      "not-installed": "未安装"
+    "wallpaper-colors": {
+      "enabled": "壁纸颜色已启用",
+      "disabled": "壁纸颜色已禁用",
+      "not-installed": "Matugen 未安装 - 壁纸颜色提取所需"
     },
     "recording": {
       "stopping": "正在停止录制…",
@@ -1395,7 +1422,7 @@
     },
     "missing-control-center": {
       "label": "最后一个控制中心小部件已移除",
-      "description": "控制中心小部件已从状态栏中移除。要再次从状态栏访问它，您需要重新添加小部件。"
+      "description": "控制中心小部件已从状态栏中移除。要再次从状态栏访问它，您需要重新添加小部件。您也可以通过右键点击状态栏来打开它。"
     }
   },
   "weather": {

@@ -79,6 +79,16 @@
           }
         },
         "reset-scaling": "Réinitialiser l'échelle"
+      },
+      "control-center": {
+        "section": {
+          "label": "Centre de contrôle",
+          "description": "Configurer le positionnement et le comportement du panneau du centre de contrôle."
+        },
+        "position": {
+          "label": "Position",
+          "description": "Choisissez où apparaît le panneau du centre de contrôle lors de l'ouverture."
+        }
       }
     },
     "audio": {
@@ -488,9 +498,9 @@
           "label": "Mode sombre",
           "description": "Passe à un thème plus sombre pour une visualisation plus facile la nuit."
         },
-        "enable-matugen": {
-          "label": "Activer Matugen",
-          "description": "Générez automatiquement des couleurs en fonction de votre fond d'écran actif."
+        "use-wallpaper-colors": {
+          "label": "Utiliser les couleurs du fond d'écran",
+          "description": "Générer des schémas de couleurs à partir de votre fond d'écran avec Matugen. Extrait automatiquement les couleurs pour créer un thème cohérent."
         },
         "matugen-scheme-type": {
           "label": "Type de schéma Matugen",
@@ -501,27 +511,21 @@
         "section": {
           "label": "Jeux de couleurs prédéfinis",
           "description": "Choisissez parmi une collection de jeux de couleurs prédéfinis."
+        },
+        "generate-templates": {
+          "label": "Générer des modèles pour les schémas prédéfinis",
+          "description": "Génère des modèles Matugen (GTK, thèmes de terminal, etc.) lors de l'utilisation de schémas de couleurs prédéfinis."
         }
       },
-      "matugen": {
-        "section": {
-          "label": "Modèles Matugen",
-          "description": "Appliquez des couleurs aux applications externes."
-        },
+      "templates": {
         "ui": {
           "label": "UI",
           "description": "Thématisation de l'environnement de bureau et de la boîte à outils d'interface utilisateur.",
-          "gtk4": {
-            "description": "Écrire ~/.config/gtk-4.0/gtk.css"
+          "gtk": {
+            "description": "Écrire {filepath}"
           },
-          "gtk3": {
-            "description": "Écrire ~/.config/gtk-3.0/gtk.css"
-          },
-          "qt6": {
-            "description": "Écrire ~/.config/qt6ct/colors/noctalia.conf"
-          },
-          "qt5": {
-            "description": "Écrire ~/.config/qt5ct/colors/noctalia.conf"
+          "qt": {
+            "description": "Écrire {filepath}"
           }
         },
         "terminal": {
@@ -563,6 +567,10 @@
             "label": "Modèles utilisateur",
             "description": "Activer la configuration Matugen définie par l'utilisateur depuis ~/.config/matugen/config.toml"
           }
+        },
+        "section": {
+          "description": "Appliquer des couleurs aux applications externes.",
+          "label": "Modèles"
         }
       }
     },
@@ -836,6 +844,10 @@
         "auto-hide": {
           "label": "Masquer automatiquement",
           "description": "Masquer automatiquement le widget quand aucune fenêtre n'est active."
+        },
+        "width": {
+          "description": "Contrôle la taille horizontale du widget.",
+          "label": "Largeur du widget"
         }
       },
       "system-monitor": {
@@ -1037,7 +1049,8 @@
     "panel": {
       "title": "Notifications",
       "no-notifications": "Aucune notification",
-      "description": "Vos notifications apparaîtront ici à mesure qu'elles arriveront."
+      "description": "Vos notifications apparaîtront ici à mesure qu'elles arriveront.",
+      "click-to-expand": "Cliquez pour développer"
     }
   },
   "wallpaper": {
@@ -1212,6 +1225,17 @@
         "center_right": "Droite centre"
       }
     },
+    "control-center": {
+      "position": {
+        "close_to_bar_button": "Près du bouton de la barre",
+        "top_left": "En haut à gauche",
+        "top_right": "En haut à droite",
+        "bottom_left": "En bas à gauche",
+        "bottom_right": "En bas à droite",
+        "bottom_center": "En bas au centre",
+        "top_center": "En haut au centre"
+      }
+    },
     "osd": {
       "position": {
         "top_left": "En haut à gauche",
@@ -1307,7 +1331,7 @@
   },
   "system": {
     "uptime": "Temps d'activité : {uptime}",
-    "welcome-back": "Bon retour, {user} !",
+    "welcome-back": "Bon retour,",
     "monitor-description": "{model} ({width}x{height})",
     "scaling-percentage": "{percentage}%",
     "location-display": "{name} ({coordinates})",
@@ -1325,7 +1349,10 @@
   "lock-screen": {
     "secure-terminal": "TERMINAL SÉCURISÉ",
     "unlock-command": "sudo unlock-session",
-    "password": "Mot de passe :",
+    "password": "Entrez votre mot de passe...",
+    "welcome-back": "Bon retour,",
+    "authenticating": "Authentification...",
+    "authentication-failed": "Échec de l'authentification",
     "shut-down": "Éteindre",
     "restart": "Redémarrer",
     "suspend": "Mettre en veille"
@@ -1342,10 +1369,10 @@
       "enabled": "Activé",
       "disabled": "Désactivé"
     },
-    "matugen": {
-      "enabled": "Activé",
-      "disabled": "Désactivé",
-      "not-installed": "Non installé"
+    "wallpaper-colors": {
+      "enabled": "Couleurs du fond d'écran activées",
+      "disabled": "Couleurs du fond d'écran désactivées",
+      "not-installed": "Matugen non installé - requis pour l'extraction des couleurs du fond d'écran"
     },
     "recording": {
       "stopping": "Arrêt de l'enregistrement...",
@@ -1395,7 +1422,7 @@
     },
     "missing-control-center": {
       "label": "Dernier widget du Centre de contrôle supprimé",
-      "description": "Le widget du Centre de contrôle a été retiré de la barre. Pour y accéder à nouveau depuis la barre, veuillez ré‑ajouter le widget."
+      "description": "Le widget du Centre de contrôle a été retiré de la barre. Pour y accéder à nouveau depuis la barre, veuillez ré‑ajouter le widget. Vous pouvez aussi l'ouvrir en cliquant avec le bouton droit sur la barre."
     }
   },
   "weather": {

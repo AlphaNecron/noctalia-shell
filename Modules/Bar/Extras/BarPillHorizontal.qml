@@ -61,8 +61,6 @@ Item {
   Rectangle {
     id: pill
 
-    property ShellScreen screen: root.screen
-
     width: revealed ? pillMaxWidth : 1
     height: pillHeight
 
@@ -224,7 +222,7 @@ Item {
     onEntered: {
       hovered = true
       root.entered()
-      TooltipService.show(pill, root.tooltipText, BarService.getTooltipDirection(), Style.tooltipDelayLong)
+      TooltipService.show(Screen, pill, root.tooltipText, BarService.getTooltipDirection(), Style.tooltipDelayLong)
       if (disableOpen || forceClose) {
         return
       }

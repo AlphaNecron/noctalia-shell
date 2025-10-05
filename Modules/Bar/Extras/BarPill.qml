@@ -8,8 +8,6 @@ import qs.Widgets
 Item {
   id: root
 
-  property ShellScreen screen
-
   property string icon: ""
   property string text: ""
   property string suffix: ""
@@ -48,7 +46,6 @@ Item {
     Component {
       id: verticalPillComponent
       BarPillVertical {
-        screen: root.screen
         icon: root.icon
         text: root.text
         suffix: root.suffix
@@ -76,7 +73,6 @@ Item {
     Component {
       id: horizontalPillComponent
       BarPillHorizontal {
-        screen: root.screen
         icon: root.icon
         text: root.text
         suffix: root.suffix

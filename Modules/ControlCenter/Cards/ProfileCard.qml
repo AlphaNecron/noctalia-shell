@@ -66,7 +66,6 @@ NBox {
       }
 
       NIconButton {
-        id: powerButton
         icon: "power"
         tooltipText: I18n.tr("tooltips.session-menu")
         onClicked: {
@@ -76,7 +75,6 @@ NBox {
       }
 
       NIconButton {
-        id: closeButton
         icon: "close"
         tooltipText: I18n.tr("tooltips.close")
         onClicked: {

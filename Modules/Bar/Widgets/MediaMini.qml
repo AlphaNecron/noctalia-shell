@@ -208,7 +208,7 @@ Item {
           property bool isResetting: false
           property real textWidth: fullTitleMetrics.contentWidth
           property real containerWidth: 0
-          property bool needsScrolling: textWidth > containerWidth
+          property bool needsScrolling: textWidth > containerWidth && MediaService.isPlaying
 
           // Timer for "always" mode with delay
           Timer {
@@ -390,7 +390,7 @@ Item {
         onEntered: {
           var textToShow = hasActivePlayer ? tooltipText : placeholderText
           if ((textToShow !== "") && (barPosition === "left" || barPosition === "right") || (scrollingMode === "never")) {
-            TooltipService.show(root, textToShow, BarService.getTooltipDirection())
+            TooltipService.show(Screen, root, textToShow, BarService.getTooltipDirection())
           }
         }
         onExited: {
