@@ -332,6 +332,28 @@ Singleton {
           "dark": {
             "color": ColorVariants.generateContainer(variant.mSurface, true)
           }
+        },
+        "surface_container_high": {
+          "light": {
+            "color": ColorVariants.generateBright(ColorVariants.generateContainer(variant.mSurface, false), false)
+          },
+          "default": {
+            "color": ColorVariants.generateBright(ColorVariants.generateContainer(variant.mSurface, true), true)
+          },
+          "dark": {
+            "color": ColorVariants.generateBright(ColorVariants.generateContainer(variant.mSurface, true), true)
+          }
+        },
+        "surface_container_highest": {
+          "light": {
+            "color": ColorVariants.generateBright(ColorVariants.generateBright(ColorVariants.generateContainer(variant.mSurface, false), false), false)
+          },
+          "default": {
+            "color": ColorVariants.generateBright(ColorVariants.generateBright(ColorVariants.generateContainer(variant.mSurface, true), true), true)
+          },
+          "dark": {
+            "color": ColorVariants.generateBright(ColorVariants.generateBright(ColorVariants.generateContainer(variant.mSurface, true), true), true)
+          }
         }
       }
     }
