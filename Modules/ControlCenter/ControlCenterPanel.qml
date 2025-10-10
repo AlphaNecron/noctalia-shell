@@ -10,8 +10,8 @@ import qs.Widgets
 NPanel {
   id: root
 
-  preferredWidth: 460
-  preferredHeight: 688
+  preferredWidth: 480
+  preferredHeight: 580
   panelKeyboardFocus: true
 
   // Positioning
@@ -31,9 +31,8 @@ NPanel {
     // Layout content
     ColumnLayout {
       id: layout
-      x: content.cardSpacing
-      y: content.cardSpacing
-      width: parent.width - (2 * content.cardSpacing)
+      anchors.fill: parent
+      anchors.margins: content.cardSpacing
       spacing: content.cardSpacing
 
       // Top Card: profile + utilities
@@ -51,19 +50,19 @@ NPanel {
       // Media + stats column
       RowLayout {
         Layout.fillWidth: true
-        Layout.preferredHeight: Math.max(304 * scaling)
+        Layout.preferredHeight: Math.max(196 * scaling)
         spacing: content.cardSpacing
 
         // Media card
         MediaCard {
-          Layout.fillWidth: true
+          Layout.preferredWidth: Math.max(270 * scaling)
           Layout.fillHeight: true
         }
 
         // System monitors combined in one card
         SystemMonitorCard {
-          Layout.preferredWidth: Style.baseWidgetSize * 2.625 * scaling
-          Layout.fillHeight: true
+          Layout.preferredWidth: Math.max(160 * scaling)
+          Layout.preferredHeight: Math.max(196 * scaling)
         }
       }
     }

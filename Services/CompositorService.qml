@@ -11,6 +11,7 @@ Singleton {
   // Compositor detection
   property bool isHyprland: false
   property bool isNiri: false
+  property bool isSway: false
 
   // Generic workspace and window data
   property ListModel workspaces: ListModel {}
@@ -31,14 +32,28 @@ Singleton {
 
   function detectCompositor() {
     const hyprlandSignature = Quickshell.env("HYPRLAND_INSTANCE_SIGNATURE")
-    if (hyprlandSignature && hyprlandSignature.length > 0) {
-      isHyprland = true
-      isNiri = false
-      backendLoader.sourceComponent = hyprlandComponent
-    } else {
-      // Default to Niri
+    const niriSocket = Quickshell.env("NIRI_SOCKET")
+    const swaySock = Quickshell.env("SWAYSOCK")
+    if (niriSocket && niriSocket.length > 0) {
       isHyprland = false
       isNiri = true
+      isSway = false
+      backendLoader.sourceComponent = niriComponent
+    } else if (hyprlandSignature && hyprlandSignature.length > 0) {
+      isHyprland = true
+      isNiri = false
+      isSway = false
+      backendLoader.sourceComponent = hyprlandComponent
+    } else if (swaySock && swaySock.length > 0) {
+      isHyprland = false
+      isNiri = false
+      isSway = true
+      backendLoader.sourceComponent = swayComponent
+    } else {
+      // Always fallback to Niri
+      isHyprland = false
+      isNiri = true
+      isSway = false
       backendLoader.sourceComponent = niriComponent
     }
   }
@@ -67,6 +82,14 @@ Singleton {
     id: niriComponent
     NiriService {
       id: niriBackend
+    }
+  }
+
+  // Sway backend component
+  Component {
+    id: swayComponent
+    SwayService {
+      id: swayBackend
     }
   }
 
@@ -139,15 +162,19 @@ Singleton {
   // Get focused window title
   function getFocusedWindowTitle() {
     if (focusedWindowIndex >= 0 && focusedWindowIndex < windows.count) {
-      return windows.get(focusedWindowIndex).title || ""
+      var title = windows.get(focusedWindowIndex).title
+      if (title !== undefined) {
+        title = title.replace(/(\r\n|\n|\r)/g, "")
+      }
+      return title || ""
     }
     return ""
   }
 
   // Generic workspace switching
-  function switchToWorkspace(workspaceId) {
+  function switchToWorkspace(workspace) {
     if (backend && backend.switchToWorkspace) {
-      backend.switchToWorkspace(workspaceId)
+      backend.switchToWorkspace(workspace)
     } else {
       Logger.warn("Compositor", "No backend available for workspace switching")
     }
@@ -177,18 +204,18 @@ Singleton {
   }
 
   // Set focused window
-  function focusWindow(windowId) {
+  function focusWindow(window) {
     if (backend && backend.focusWindow) {
-      backend.focusWindow(windowId)
+      backend.focusWindow(window)
     } else {
       Logger.warn("Compositor", "No backend available for window focus")
     }
   }
 
   // Close window
-  function closeWindow(windowId) {
+  function closeWindow(window) {
     if (backend && backend.closeWindow) {
-      backend.closeWindow(windowId)
+      backend.closeWindow(window)
     } else {
       Logger.warn("Compositor", "No backend available for window closing")
     }

@@ -1,7 +1,7 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
-import Qt5Compat.GraphicalEffects
+import QtQuick.Effects
 import Quickshell
 import qs.Modules.Audio
 import qs.Commons
@@ -16,23 +16,11 @@ NBox {
     anchors.fill: parent
     clip: true
 
-    Image {
+    NImageRounded {
       id: bgArtImage
       anchors.fill: parent
-      source: MediaService.trackArtUrl
-      fillMode: Image.PreserveAspectCrop
-      smooth: true
-      visible: false
-    }
-
-    OpacityMask {
-      anchors.fill: parent
-      source: bgArtImage
-      maskSource: Rectangle {
-        width: root.width
-        height: root.height
-        radius: Style.radiusM * scaling
-      }
+      imagePath: MediaService.trackArtUrl
+      imageRadius: Style.radiusM * scaling
       visible: MediaService.trackArtUrl !== ""
     }
 
@@ -58,7 +46,20 @@ NBox {
   Item {
     id: visualizerContainer
     anchors.fill: parent
-    visible: false
+    layer.enabled: true
+    layer.effect: MultiEffect {
+      maskEnabled: true
+      maskThresholdMin: 0.5
+      maskSpreadAtMin: 0.0
+      maskSource: ShaderEffectSource {
+        sourceItem: Rectangle {
+          width: root.width
+          height: root.height
+          radius: Style.radiusM * scaling
+          color: "white"
+        }
+      }
+    }
 
     Loader {
       anchors.fill: parent
@@ -83,6 +84,7 @@ NBox {
           anchors.fill: parent
           values: CavaService.values
           fillColor: Color.mPrimary
+          opacity: MediaService.trackArtUrl !== "" ? 0.4 : 0.8
         }
       }
 
@@ -92,6 +94,7 @@ NBox {
           anchors.fill: parent
           values: CavaService.values
           fillColor: Color.mPrimary
+          opacity: MediaService.trackArtUrl !== "" ? 0.4 : 0.8
         }
       }
 
@@ -101,25 +104,87 @@ NBox {
           anchors.fill: parent
           values: CavaService.values
           fillColor: Color.mPrimary
+          opacity: MediaService.trackArtUrl !== "" ? 0.4 : 0.8
         }
       }
     }
   }
 
-  OpacityMask {
-    anchors.fill: parent
-    opacity: MediaService.trackArtUrl !== "" ? 0.35 : 1.0
-    source: visualizerContainer
-    maskSource: Rectangle {
-      width: root.width
-      height: root.height
-      radius: Style.radiusM * scaling
+  // Player selector - positioned at the very top
+  Rectangle {
+    id: playerSelectorButton
+    anchors.top: parent.top
+    anchors.left: parent.left
+    anchors.right: parent.right
+    anchors.topMargin: Style.marginXS * scaling
+    anchors.leftMargin: Style.marginM * scaling
+    anchors.rightMargin: Style.marginM * scaling
+    height: Style.barHeight * scaling
+    visible: MediaService.getAvailablePlayers().length > 1
+    radius: Style.radiusM * scaling
+    color: Color.transparent
+
+    property var currentPlayer: MediaService.getAvailablePlayers()[MediaService.selectedPlayerIndex]
+
+    RowLayout {
+      anchors.fill: parent
+      spacing: Style.marginS * scaling
+
+      NIcon {
+        icon: "caret-down"
+        pointSize: Style.fontSizeXXL * scaling
+        color: Color.mOnSurfaceVariant
+      }
+
+      NText {
+        text: playerSelectorButton.currentPlayer ? playerSelectorButton.currentPlayer.identity : ""
+        pointSize: Style.fontSizeXS * scaling
+        color: Color.mOnSurfaceVariant
+        Layout.fillWidth: true
+      }
+    }
+
+    MouseArea {
+      id: playerSelectorMouseArea
+      anchors.fill: parent
+      hoverEnabled: true
+      cursorShape: Qt.PointingHandCursor
+
+      onClicked: {
+        var menuItems = []
+        var players = MediaService.getAvailablePlayers()
+        for (var i = 0; i < players.length; i++) {
+          menuItems.push({
+                           "label": players[i].identity,
+                           "action": i.toString(),
+                           "icon": "disc",
+                           "enabled": true,
+                           "visible": true
+                         })
+        }
+        playerContextMenu.model = menuItems
+        playerContextMenu.openAtItem(playerSelectorButton, playerSelectorButton.width - playerContextMenu.width, playerSelectorButton.height)
+      }
+    }
+
+    NContextMenu {
+      id: playerContextMenu
+      parent: root
+      width: 200 * scaling
+
+      onTriggered: function (action) {
+        var index = parseInt(action)
+        if (!isNaN(index)) {
+          MediaService.selectedPlayerIndex = index
+          MediaService.updateCurrentPlayer()
+        }
+      }
     }
   }
 
   ColumnLayout {
     anchors.fill: parent
-    anchors.margins: Style.marginL * scaling
+    anchors.margins: Style.marginM * scaling
 
     // No media player detected
     ColumnLayout {
@@ -225,78 +290,11 @@ NBox {
       id: main
 
       visible: MediaService.currentPlayer && MediaService.canPlay
-      spacing: Style.marginM * scaling
-
-      // Player selector
-      Rectangle {
-        id: playerSelectorButton
-        Layout.fillWidth: true
-        Layout.preferredHeight: Style.barHeight * scaling
-        visible: MediaService.getAvailablePlayers().length > 1
-        radius: Style.radiusM * scaling
-        color: Color.transparent
-
-        property var currentPlayer: MediaService.getAvailablePlayers()[MediaService.selectedPlayerIndex]
-
-        RowLayout {
-          anchors.fill: parent
-          spacing: Style.marginS * scaling
-
-          NIcon {
-            icon: "caret-down"
-            pointSize: Style.fontSizeXXL * scaling
-            color: Color.mOnSurfaceVariant
-          }
-
-          NText {
-            text: playerSelectorButton.currentPlayer ? playerSelectorButton.currentPlayer.identity : ""
-            pointSize: Style.fontSizeXS * scaling
-            color: Color.mOnSurfaceVariant
-            Layout.fillWidth: true
-          }
-        }
-
-        MouseArea {
-          id: playerSelectorMouseArea
-          anchors.fill: parent
-          hoverEnabled: true
-          cursorShape: Qt.PointingHandCursor
-
-          onClicked: {
-            var menuItems = []
-            var players = MediaService.getAvailablePlayers()
-            for (var i = 0; i < players.length; i++) {
-              menuItems.push({
-                               "label": players[i].identity,
-                               "action": i.toString(),
-                               "icon": "disc",
-                               "enabled": true,
-                               "visible": true
-                             })
-            }
-            playerContextMenu.model = menuItems
-            playerContextMenu.openAtItem(playerSelectorButton, playerSelectorButton.width - playerContextMenu.width, playerSelectorButton.height)
-          }
-        }
-
-        NContextMenu {
-          id: playerContextMenu
-          parent: root
-          width: 200 * scaling
-
-          onTriggered: function (action) {
-            var index = parseInt(action)
-            if (!isNaN(index)) {
-              MediaService.selectedPlayerIndex = index
-              MediaService.updateCurrentPlayer()
-            }
-          }
-        }
-      }
+      spacing: Style.marginS * scaling
 
       // Spacer to push content down
       Item {
-        Layout.fillHeight: true
+        Layout.preferredHeight: Style.marginM * scaling
       }
 
       // Metadata at the bottom left
@@ -308,7 +306,7 @@ NBox {
         NText {
           visible: MediaService.trackTitle !== ""
           text: MediaService.trackTitle
-          pointSize: Style.fontSizeXL * scaling
+          pointSize: Style.fontSizeM * scaling
           font.weight: Style.fontWeightBold
           elide: Text.ElideRight
           wrapMode: Text.Wrap
@@ -320,7 +318,7 @@ NBox {
           visible: MediaService.trackArtist !== ""
           text: MediaService.trackArtist
           color: Color.mPrimary
-          pointSize: Style.fontSizeL * scaling
+          pointSize: Style.fontSizeS * scaling
           elide: Text.ElideRight
           Layout.fillWidth: true
         }
@@ -408,9 +406,14 @@ NBox {
         }
       }
 
+      // Spacer to push media controls down
+      Item {
+        Layout.preferredHeight: Style.marginL * scaling
+      }
+
       // Media controls
       RowLayout {
-        spacing: Style.marginM * scaling
+        spacing: Style.marginS * scaling
         Layout.fillWidth: true
         Layout.alignment: Qt.AlignHCenter
 
