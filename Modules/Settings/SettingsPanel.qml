@@ -11,14 +11,11 @@ import qs.Widgets
 NPanel {
   id: root
 
-  preferredWidth: 1000
-  preferredHeight: 1000
-  preferredWidthRatio: 0.4
-  preferredHeightRatio: 0.75
+  preferredWidth: 820 * Style.uiScaleRatio
+  preferredHeight: 940 * Style.uiScaleRatio
 
   panelAnchorHorizontalCenter: true
   panelAnchorVerticalCenter: true
-
   panelKeyboardFocus: true
 
   draggable: !PanelService.hasOpenedPopup
@@ -29,6 +26,8 @@ NPanel {
     Audio,
     Bar,
     ColorScheme,
+    LockScreen,
+    ControlCenter,
     OSD,
     Display,
     Dock,
@@ -39,6 +38,7 @@ NPanel {
     Network,
     Notifications,
     ScreenRecorder,
+    UserInterface,
     Wallpaper
   }
 
@@ -111,6 +111,18 @@ NPanel {
     id: notificationsTab
     NotificationsTab {}
   }
+  Component {
+    id: controlCenterTab
+    ControlCenterTab {}
+  }
+  Component {
+    id: userInterfaceTab
+    UserInterfaceTab {}
+  }
+  Component {
+    id: lockScreenTab
+    LockScreenTab {}
+  }
 
   // Order *DOES* matter
   function updateTabsModel() {
@@ -120,10 +132,20 @@ NPanel {
                      "icon": "settings-general",
                      "source": generalTab
                    }, {
+                     "id": SettingsPanel.Tab.UserInterface,
+                     "label": "settings.user-interface.title",
+                     "icon": "settings-user-interface",
+                     "source": userInterfaceTab
+                   }, {
                      "id": SettingsPanel.Tab.Bar,
                      "label": "settings.bar.title",
                      "icon": "settings-bar",
                      "source": barTab
+                   }, {
+                     "id": SettingsPanel.Tab.ControlCenter,
+                     "label": "settings.control-center.title",
+                     "icon": "settings-control-center",
+                     "source": controlCenterTab
                    }, {
                      "id": SettingsPanel.Tab.Dock,
                      "label": "settings.dock.title",
@@ -134,6 +156,11 @@ NPanel {
                      "label": "settings.launcher.title",
                      "icon": "settings-launcher",
                      "source": launcherTab
+                   }, {
+                     "id": SettingsPanel.Tab.LockScreen,
+                     "label": "settings.lock-screen.title",
+                     "icon": "settings-lock-screen",
+                     "source": lockScreenTab
                    }, {
                      "id": SettingsPanel.Tab.Audio,
                      "label": "settings.audio.title",
@@ -262,7 +289,7 @@ NPanel {
     // Main layout container that fills the panel
     ColumnLayout {
       anchors.fill: parent
-      anchors.margins: Style.marginL * scaling
+      anchors.margins: Style.marginL
       spacing: 0
 
       // Keyboard shortcuts container
@@ -325,18 +352,18 @@ NPanel {
       RowLayout {
         Layout.fillWidth: true
         Layout.fillHeight: true
-        spacing: Style.marginM * scaling
+        spacing: Style.marginL
 
         // Sidebar
         Rectangle {
           id: sidebar
-          Layout.preferredWidth: 220 * scaling
+          Layout.preferredWidth: 220 * Style.uiScaleRatio
           Layout.fillHeight: true
           Layout.alignment: Qt.AlignTop
           color: Color.mSurfaceVariant
           border.color: Color.mOutline
-          border.width: Math.max(1, Style.borderS * scaling)
-          radius: Style.radiusM * scaling
+          border.width: Math.max(1, Style.borderS)
+          radius: Style.radiusM
 
           MouseArea {
             anchors.fill: parent
@@ -357,8 +384,8 @@ NPanel {
 
           ColumnLayout {
             anchors.fill: parent
-            anchors.margins: Style.marginS * scaling
-            spacing: Style.marginXS * scaling
+            anchors.margins: Style.marginS
+            spacing: Style.marginXS
 
             Repeater {
               id: sections
@@ -366,8 +393,8 @@ NPanel {
               delegate: Rectangle {
                 id: tabItem
                 Layout.fillWidth: true
-                Layout.preferredHeight: tabEntryRow.implicitHeight + Style.marginS * scaling * 2
-                radius: Style.radiusS * scaling
+                Layout.preferredHeight: tabEntryRow.implicitHeight + Style.marginM * 2
+                radius: Style.radiusS
                 color: selected ? Color.mPrimary : (tabItem.hovering ? Color.mTertiary : Color.transparent)
                 readonly property bool selected: index === currentTabIndex
                 property bool hovering: false
@@ -388,22 +415,22 @@ NPanel {
                 RowLayout {
                   id: tabEntryRow
                   anchors.fill: parent
-                  anchors.leftMargin: Style.marginS * scaling
-                  anchors.rightMargin: Style.marginS * scaling
-                  spacing: Style.marginM * scaling
+                  anchors.leftMargin: Style.marginS
+                  anchors.rightMargin: Style.marginS
+                  spacing: Style.marginM
 
                   // Tab icon
                   NIcon {
                     icon: modelData.icon
                     color: tabTextColor
-                    pointSize: Style.fontSizeXL * scaling
+                    pointSize: Style.fontSizeXL
                   }
 
                   // Tab label
                   NText {
                     text: I18n.tr(modelData.label)
                     color: tabTextColor
-                    pointSize: Style.fontSizeM * scaling
+                    pointSize: Style.fontSizeM
                     font.weight: Style.fontWeightBold
                     Layout.fillWidth: true
                     Layout.alignment: Qt.AlignVCenter
@@ -434,34 +461,34 @@ NPanel {
           Layout.fillWidth: true
           Layout.fillHeight: true
           Layout.alignment: Qt.AlignTop
-          radius: Style.radiusM * scaling
+          radius: Style.radiusM
           color: Color.mSurfaceVariant
           border.color: Color.mOutline
-          border.width: Math.max(1, Style.borderS * scaling)
+          border.width: Math.max(1, Style.borderS)
 
           ColumnLayout {
             id: contentLayout
             anchors.fill: parent
-            anchors.margins: Style.marginL * scaling
-            spacing: Style.marginS * scaling
+            anchors.margins: Style.marginL
+            spacing: Style.marginS
 
             // Header row
             RowLayout {
               id: headerRow
               Layout.fillWidth: true
-              spacing: Style.marginS * scaling
+              spacing: Style.marginS
 
               // Main icon
               NIcon {
                 icon: root.tabsModel[currentTabIndex]?.icon
                 color: Color.mPrimary
-                pointSize: Style.fontSizeXXL * scaling
+                pointSize: Style.fontSizeXXL
               }
 
               // Main title
               NText {
                 text: I18n.tr(root.tabsModel[currentTabIndex]?.label) || ""
-                pointSize: Style.fontSizeXL * scaling
+                pointSize: Style.fontSizeXL
                 font.weight: Style.fontWeightBold
                 color: Color.mPrimary
                 Layout.fillWidth: true
@@ -516,7 +543,7 @@ NPanel {
                       anchors.fill: parent
                       horizontalPolicy: ScrollBar.AlwaysOff
                       verticalPolicy: ScrollBar.AsNeeded
-                      padding: Style.marginL * scaling
+                      padding: Style.marginL
                       Component.onCompleted: {
                         root.activeScrollView = scrollView
                       }

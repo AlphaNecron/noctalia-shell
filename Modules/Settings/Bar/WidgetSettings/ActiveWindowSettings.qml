@@ -7,7 +7,7 @@ import qs.Services
 
 ColumnLayout {
   id: root
-  spacing: Style.marginM * scaling
+  spacing: Style.marginM
 
   // Properties to receive data from parent
   property var widgetData: null
@@ -15,25 +15,45 @@ ColumnLayout {
 
   // Local state
   property bool valueShowIcon: widgetData.showIcon !== undefined ? widgetData.showIcon : widgetMetadata.showIcon
-  property bool valueAutoHide: widgetData.autoHide !== undefined ? widgetData.autoHide : widgetMetadata.autoHide
+  property string valueHideMode: "hidden" // Default to 'Hide When Empty'
   property string valueScrollingMode: widgetData.scrollingMode || widgetMetadata.scrollingMode
-  property int valueWidth: widgetData.width !== undefined ? widgetData.width : widgetMetadata.width
+  property int valueMaxWidth: widgetData.maxWidth !== undefined ? widgetData.maxWidth : widgetMetadata.maxWidth
+  property bool valueUseFixedWidth: widgetData.useFixedWidth !== undefined ? widgetData.useFixedWidth : widgetMetadata.useFixedWidth
+  property bool valueColorizeIcons: widgetData.colorizeIcons !== undefined ? widgetData.colorizeIcons : widgetMetadata.colorizeIcons
+
+  Component.onCompleted: {
+    if (widgetData && widgetData.hideMode !== undefined) {
+      valueHideMode = widgetData.hideMode
+    }
+  }
 
   function saveSettings() {
     var settings = Object.assign({}, widgetData || {})
-    settings.autoHide = valueAutoHide
+    settings.hideMode = valueHideMode
     settings.showIcon = valueShowIcon
     settings.scrollingMode = valueScrollingMode
-    settings.width = parseInt(widthInput.text) || widgetMetadata.width
+    settings.maxWidth = parseInt(widthInput.text) || widgetMetadata.maxWidth
+    settings.useFixedWidth = valueUseFixedWidth
+    settings.colorizeIcons = valueColorizeIcons
     return settings
   }
 
-  NToggle {
+  NComboBox {
     Layout.fillWidth: true
-    label: I18n.tr("bar.widget-settings.active-window.auto-hide.label")
-    description: I18n.tr("bar.widget-settings.active-window.auto-hide.description")
-    checked: root.valueAutoHide
-    onToggled: checked => root.valueAutoHide = checked
+    label: I18n.tr("bar.widget-settings.active-window.hide-mode.label")
+    description: I18n.tr("bar.widget-settings.active-window.hide-mode.description")
+    model: [{
+        "key": "visible",
+        "name": I18n.tr("options.hide-modes.visible")
+      }, {
+        "key": "hidden",
+        "name": I18n.tr("options.hide-modes.hidden")
+      }, {
+        "key": "transparent",
+        "name": I18n.tr("options.hide-modes.transparent")
+      }]
+    currentKey: root.valueHideMode
+    onSelected: key => root.valueHideMode = key
   }
 
   NToggle {
@@ -44,13 +64,29 @@ ColumnLayout {
     onToggled: checked => root.valueShowIcon = checked
   }
 
+  NToggle {
+    Layout.fillWidth: true
+    label: I18n.tr("bar.widget-settings.active-window.colorize-icons.label")
+    description: I18n.tr("bar.widget-settings.active-window.colorize-icons.description")
+    checked: root.valueColorizeIcons
+    onToggled: checked => root.valueColorizeIcons = checked
+  }
+
   NTextInput {
     id: widthInput
     Layout.fillWidth: true
-    label: I18n.tr("bar.widget-settings.active-window.width.label")
-    description: I18n.tr("bar.widget-settings.active-window.width.description")
-    placeholderText: widgetMetadata.width
-    text: valueWidth
+    label: I18n.tr("bar.widget-settings.active-window.max-width.label")
+    description: I18n.tr("bar.widget-settings.active-window.max-width.description")
+    placeholderText: widgetMetadata.maxWidth
+    text: valueMaxWidth
+  }
+
+  NToggle {
+    Layout.fillWidth: true
+    label: I18n.tr("bar.widget-settings.active-window.use-fixed-width.label")
+    description: I18n.tr("bar.widget-settings.active-window.use-fixed-width.description")
+    checked: valueUseFixedWidth
+    onToggled: checked => valueUseFixedWidth = checked
   }
 
   NComboBox {
@@ -68,6 +104,6 @@ ColumnLayout {
       }]
     currentKey: valueScrollingMode
     onSelected: key => valueScrollingMode = key
-    minimumWidth: 200 * scaling
+    minimumWidth: 200
   }
 }

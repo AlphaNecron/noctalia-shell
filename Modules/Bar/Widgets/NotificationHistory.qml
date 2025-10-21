@@ -10,7 +10,7 @@ import qs.Widgets
 NIconButton {
   id: root
 
-  property real scaling: 1.0
+  property ShellScreen screen
 
   // Widget properties passed from Bar.qml for per-instance settings
   property string widgetId: ""
@@ -31,12 +31,8 @@ NIconButton {
   readonly property bool showUnreadBadge: (widgetSettings.showUnreadBadge !== undefined) ? widgetSettings.showUnreadBadge : widgetMetadata.showUnreadBadge
   readonly property bool hideWhenZero: (widgetSettings.hideWhenZero !== undefined) ? widgetSettings.hideWhenZero : widgetMetadata.hideWhenZero
 
-  function lastSeenTs() {
-    return Settings.data.notifications?.lastSeenTs || 0
-  }
-
   function computeUnreadCount() {
-    var since = lastSeenTs()
+    var since = NotificationService.lastSeenTs
     var count = 0
     var model = NotificationService.historyList
     for (var i = 0; i < model.count; i++) {
@@ -49,7 +45,8 @@ NIconButton {
   }
 
   baseSize: Style.capsuleHeight
-  compact: (Settings.data.bar.density === "compact")
+  applyUiScale: false
+  density: Settings.data.bar.density
   icon: Settings.data.notifications.doNotDisturb ? "bell-off" : "bell"
   tooltipText: Settings.data.notifications.doNotDisturb ? I18n.tr("tooltips.open-notification-history-disable-dnd") : I18n.tr("tooltips.open-notification-history-enable-dnd")
   tooltipDirection: BarService.getTooltipDirection()
@@ -68,14 +65,14 @@ NIconButton {
   Loader {
     anchors.right: parent.right
     anchors.top: parent.top
-    anchors.rightMargin: 2 * scaling
-    anchors.topMargin: 1 * scaling
+    anchors.rightMargin: 2
+    anchors.topMargin: 1
     z: 2
     active: showUnreadBadge && (!hideWhenZero || computeUnreadCount() > 0)
     sourceComponent: Rectangle {
       id: badge
       readonly property int count: computeUnreadCount()
-      height: 8 * scaling
+      height: 8
       width: height
       radius: height / 2
       color: Color.mError

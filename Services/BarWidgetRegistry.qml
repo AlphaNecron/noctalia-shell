@@ -30,6 +30,7 @@ Singleton {
                            "Spacer": spacerComponent,
                            "SystemMonitor": systemMonitorComponent,
                            "Taskbar": taskbarComponent,
+                           "TaskbarGrouped": taskbarGroupedComponent,
                            "Tray": trayComponent,
                            "Volume": volumeComponent,
                            "WiFi": wiFiComponent,
@@ -41,14 +42,21 @@ Singleton {
                                   "ActiveWindow": {
                                     "allowUserSettings": true,
                                     "showIcon": true,
-                                    "autoHide": false,
-                                    "scrollingMode": "hover",
-                                    "width": 145
+                                    "hideMode": "hidden",
+                                    "scrollingMode"// "visible", "hidden", "transparent"
+                                    : "hover",
+                                    "maxWidth": 145,
+                                    "useFixedWidth": false,
+                                    "colorizeIcons": false
                                   },
                                   "Battery": {
                                     "allowUserSettings": true,
                                     "displayMode": "onhover",
                                     "warningThreshold": 30
+                                  },
+                                  "Bluetooth": {
+                                    "allowUserSettings": true,
+                                    "displayMode": "onhover"
                                   },
                                   "Brightness": {
                                     "allowUserSettings": true,
@@ -83,8 +91,11 @@ Singleton {
                                   },
                                   "MediaMini": {
                                     "allowUserSettings": true,
-                                    "autoHide": false,
-                                    "scrollingMode": "hover",
+                                    "hideMode": "hidden",
+                                    "scrollingMode"// "visible", "hidden", "transparent"
+                                    : "hover",
+                                    "maxWidth": 145,
+                                    "useFixedWidth": false,
                                     "showAlbumArt": false,
                                     "showVisualizer": false,
                                     "visualizerType": "linear"
@@ -114,7 +125,21 @@ Singleton {
                                   "Taskbar": {
                                     "allowUserSettings": true,
                                     "onlySameOutput": true,
-                                    "onlyActiveWorkspaces": true
+                                    "onlyActiveWorkspaces": true,
+                                    "hideMode": "hidden",
+                                    "colorizeIcons": false
+                                  },
+                                  "TaskbarGrouped": {
+                                    "allowUserSettings": true
+                                  },
+                                  "Tray": {
+                                    "allowUserSettings": true,
+                                    "blacklist": [],
+                                    "colorizeIcons": false
+                                  },
+                                  "WiFi": {
+                                    "allowUserSettings": true,
+                                    "displayMode": "onhover"
                                   },
                                   "Workspace": {
                                     "allowUserSettings": true,
@@ -203,9 +228,12 @@ Singleton {
   property Component taskbarComponent: Component {
     Taskbar {}
   }
+  property Component taskbarGroupedComponent: Component {
+    TaskbarGrouped {}
+  }
 
   function init() {
-    Logger.log("BarWidgetRegistry", "Service started")
+    Logger.i("BarWidgetRegistry", "Service started")
   }
 
   // ------------------------------

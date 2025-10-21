@@ -11,13 +11,13 @@ Item {
   id: root
 
   property ShellScreen screen
-  property real scaling: 1.0
 
   // Widget properties passed from Bar.qml for per-instance settings
   property string widgetId: ""
   property string section: ""
   property int sectionWidgetIndex: -1
   property int sectionWidgetsCount: 0
+  property real scaling: 1.0
 
   property var widgetMetadata: BarWidgetRegistry.widgetMetadata[widgetId]
   property var widgetSettings: {
@@ -30,19 +30,19 @@ Item {
     return {}
   }
 
-  readonly property string barPosition: Settings.data.bar.position
-  readonly property bool compact: (Settings.data.bar.density === "compact")
+  readonly property bool isVerticalBar: (Settings.data.bar.position === "left" || Settings.data.bar.position === "right")
 
-  readonly property bool autoHide: (widgetSettings.autoHide !== undefined) ? widgetSettings.autoHide : widgetMetadata.autoHide
+  readonly property string hideMode: (widgetSettings.hideMode !== undefined) ? widgetSettings.hideMode : "hidden" // "visible", "hidden", "transparent"
   readonly property bool showAlbumArt: (widgetSettings.showAlbumArt !== undefined) ? widgetSettings.showAlbumArt : widgetMetadata.showAlbumArt
   readonly property bool showVisualizer: (widgetSettings.showVisualizer !== undefined) ? widgetSettings.showVisualizer : widgetMetadata.showVisualizer
   readonly property string visualizerType: (widgetSettings.visualizerType !== undefined && widgetSettings.visualizerType !== "") ? widgetSettings.visualizerType : widgetMetadata.visualizerType
   readonly property string scrollingMode: (widgetSettings.scrollingMode !== undefined) ? widgetSettings.scrollingMode : widgetMetadata.scrollingMode
 
-  // Fixed width - no expansion
-  readonly property real widgetWidth: Math.max(145, screen.width * 0.06)
+  // Maximum widget width with user settings support
+  readonly property real maxWidth: (widgetSettings.maxWidth !== undefined) ? widgetSettings.maxWidth : Math.max(widgetMetadata.maxWidth, screen ? screen.width * 0.06 : 0)
+  readonly property bool useFixedWidth: (widgetSettings.useFixedWidth !== undefined) ? widgetSettings.useFixedWidth : widgetMetadata.useFixedWidth
 
-  readonly property bool hasActivePlayer: MediaService.currentPlayer !== null && getTitle() !== ""
+  readonly property bool hasActivePlayer: MediaService.currentPlayer !== null
   readonly property string placeholderText: I18n.tr("bar.widget-settings.media-mini.no-active-player")
 
   readonly property string tooltipText: {
@@ -60,14 +60,16 @@ Item {
     return title
   }
 
-  implicitHeight: visible ? ((barPosition === "left" || barPosition === "right") ? calculatedVerticalHeight() : Math.round(Style.barHeight * scaling)) : 0
-  implicitWidth: visible ? ((barPosition === "left" || barPosition === "right") ? Math.round(Style.baseWidgetSize * 0.8 * scaling) : (widgetWidth * scaling)) : 0
+  implicitHeight: visible ? (isVerticalBar ? calculatedVerticalDimension() : Style.barHeight) : 0
+  implicitWidth: visible ? (isVerticalBar ? calculatedVerticalDimension() : dynamicWidth) : 0
 
-  opacity: !autoHide || hasActivePlayer || (!hasActivePlayer && !autoHide) ? 1.0 : 0
+  // "visible": Always Visible, "hidden": Hide When Empty, "transparent": Transparent When Empty
+  visible: hideMode !== "hidden" || hasActivePlayer
+  opacity: hideMode !== "transparent" || hasActivePlayer ? 1.0 : 0
   Behavior on opacity {
     NumberAnimation {
       duration: Style.animationNormal
-      easing.type: Easing.OutCubic
+      easing.type: Easing.InOutCubic
     }
   }
 
@@ -75,8 +77,51 @@ Item {
     return MediaService.trackTitle + (MediaService.trackArtist !== "" ? ` - ${MediaService.trackArtist}` : "")
   }
 
-  function calculatedVerticalHeight() {
-    return Math.round(Style.baseWidgetSize * 0.8 * scaling)
+  function calculatedVerticalDimension() {
+    return Math.round((Style.baseWidgetSize - 5) * scaling)
+  }
+
+  function calculateContentWidth() {
+    // Calculate the actual content width based on visible elements
+    var contentWidth = 0
+    var margins = Style.marginS * scaling * 2 // Left and right margins
+
+    // Icon or album art width
+    if (!hasActivePlayer || !showAlbumArt) {
+      // Icon width
+      contentWidth += Style.fontSizeL * scaling
+    } else if (showAlbumArt && hasActivePlayer) {
+      // Album art width
+      contentWidth += 21 * scaling
+    }
+
+    // Spacing between icon/art and text
+    contentWidth += Style.marginS * scaling
+
+    // Text width (use the measured width)
+    contentWidth += fullTitleMetrics.contentWidth
+
+    // Additional small margin for text
+    contentWidth += Style.marginXXS * 2
+
+    // Add container margins
+    contentWidth += margins
+
+    return Math.ceil(contentWidth)
+  }
+
+  // Dynamic width: adapt to content but respect maximum width setting
+  readonly property real dynamicWidth: {
+    // If using fixed width mode, always use maxWidth
+    if (useFixedWidth) {
+      return maxWidth
+    }
+    // Otherwise, adapt to content
+    if (!hasActivePlayer) {
+      return maxWidth
+    }
+    // Use content width but don't exceed user-set maximum width
+    return Math.min(calculateContentWidth(), maxWidth)
   }
 
   //  A hidden text element to safely measure the full title width
@@ -85,6 +130,8 @@ Item {
     visible: false
     text: titleText.text
     font: titleText.font
+    applyUiScale: false
+    pointSize: Style.fontSizeS * scaling
   }
 
   Rectangle {
@@ -92,16 +139,24 @@ Item {
     visible: root.visible
     anchors.left: parent.left
     anchors.verticalCenter: parent.verticalCenter
-    width: (barPosition === "left" || barPosition === "right") ? Math.round(Style.baseWidgetSize * 0.8 * scaling) : (widgetWidth * scaling)
-    height: (barPosition === "left" || barPosition === "right") ? Math.round(Style.baseWidgetSize * 0.8 * scaling) : Math.round(Style.capsuleHeight * scaling)
-    radius: (barPosition === "left" || barPosition === "right") ? width / 2 : Math.round(Style.radiusM * scaling)
+    width: isVerticalBar ? root.width : dynamicWidth
+    height: isVerticalBar ? width : Style.capsuleHeight
+    radius: isVerticalBar ? width / 2 : Style.radiusM
     color: Settings.data.bar.showCapsule ? Color.mSurfaceVariant : Color.transparent
+
+    // Smooth width transition
+    Behavior on width {
+      NumberAnimation {
+        duration: Style.animationNormal
+        easing.type: Easing.InOutCubic
+      }
+    }
 
     Item {
       id: mainContainer
       anchors.fill: parent
-      anchors.leftMargin: (barPosition === "left" || barPosition === "right") ? 0 : Style.marginS * scaling
-      anchors.rightMargin: (barPosition === "left" || barPosition === "right") ? 0 : Style.marginS * scaling
+      anchors.leftMargin: isVerticalBar ? 0 : Style.marginS * scaling
+      anchors.rightMargin: isVerticalBar ? 0 : Style.marginS * scaling
 
       Loader {
         anchors.verticalCenter: parent.verticalCenter
@@ -110,8 +165,8 @@ Item {
         z: 0
 
         sourceComponent: LinearSpectrum {
-          width: mainContainer.width - Style.marginS * scaling
-          height: 20 * scaling
+          width: mainContainer.width - Style.marginS
+          height: 20
           values: CavaService.values
           fillColor: Color.mPrimary
           opacity: 0.4
@@ -125,8 +180,8 @@ Item {
         z: 0
 
         sourceComponent: MirroredSpectrum {
-          width: mainContainer.width - Style.marginS * scaling
-          height: mainContainer.height - Style.marginS * scaling
+          width: mainContainer.width - Style.marginS
+          height: mainContainer.height - Style.marginS
           values: CavaService.values
           fillColor: Color.mPrimary
           opacity: 0.4
@@ -140,8 +195,8 @@ Item {
         z: 0
 
         sourceComponent: WaveSpectrum {
-          width: mainContainer.width - Style.marginS * scaling
-          height: mainContainer.height - Style.marginS * scaling
+          width: mainContainer.width - Style.marginS
+          height: mainContainer.height - Style.marginS
           values: CavaService.values
           fillColor: Color.mPrimary
           opacity: 0.4
@@ -154,7 +209,7 @@ Item {
 
         anchors.verticalCenter: parent.verticalCenter
         spacing: Style.marginS * scaling
-        visible: (barPosition === "top" || barPosition === "bottom")
+        visible: !isVerticalBar
         z: 1 // Above the visualizer
 
         NIcon {
@@ -181,7 +236,7 @@ Item {
               anchors.fill: parent
               imagePath: MediaService.trackArtUrl
               fallbackIcon: MediaService.isPlaying ? "media-pause" : "media-play"
-              fallbackIconSize: 10 * scaling
+              fallbackIconSize: 10
               borderWidth: 0
               border.color: Color.transparent
             }
@@ -192,11 +247,11 @@ Item {
           id: titleContainer
           Layout.preferredWidth: {
             // Calculate available width based on other elements in the row
-            var iconWidth = (windowIcon.visible ? (Style.fontSizeL * scaling + Style.marginS * scaling) : 0)
-            var albumArtWidth = (hasActivePlayer && showAlbumArt ? (18 * scaling + Style.marginS * scaling) : 0)
-            var totalMargins = Style.marginXXS * scaling * 2
+            var iconWidth = (windowIcon.visible ? (Style.fontSizeL + Style.marginS) : 0)
+            var albumArtWidth = (hasActivePlayer && showAlbumArt ? (18 + Style.marginS) : 0)
+            var totalMargins = Style.marginXXS * 2
             var availableWidth = mainContainer.width - iconWidth - albumArtWidth - totalMargins
-            return Math.max(20 * scaling, availableWidth)
+            return Math.max(20, availableWidth)
           }
           Layout.maximumWidth: Layout.preferredWidth
           Layout.alignment: Qt.AlignVCenter
@@ -281,12 +336,13 @@ Item {
             x: scrollX
 
             RowLayout {
-              spacing: 50 * scaling // Gap between text copies
+              spacing: 50 // Gap between text copies
 
               NText {
                 id: titleText
                 text: hasActivePlayer ? getTitle() : placeholderText
                 pointSize: Style.fontSizeS * scaling
+                applyUiScale: false
                 font.weight: Style.fontWeightMedium
                 verticalAlignment: Text.AlignVCenter
                 horizontalAlignment: hasActivePlayer ? Text.AlignLeft : Text.AlignHCenter
@@ -296,6 +352,8 @@ Item {
               NText {
                 text: hasActivePlayer ? getTitle() : placeholderText
                 font: titleText.font
+                applyUiScale: false
+                pointSize: Style.fontSizeS * scaling
                 verticalAlignment: Text.AlignVCenter
                 horizontalAlignment: hasActivePlayer ? Text.AlignLeft : Text.AlignHCenter
                 color: hasActivePlayer ? Color.mOnSurface : Color.mOnSurfaceVariant
@@ -319,7 +377,7 @@ Item {
               id: infiniteScroll
               running: titleContainer.isScrolling && !titleContainer.isResetting
               from: 0
-              to: -(titleContainer.textWidth + 50 * scaling) // Scroll one complete text width + gap
+              to: -(titleContainer.textWidth + 50) // Scroll one complete text width + gap
               duration: Math.max(4000, getTitle().length * 120)
               loops: Animation.Infinite
               easing.type: Easing.Linear
@@ -339,15 +397,15 @@ Item {
       Item {
         id: verticalLayout
         anchors.centerIn: parent
-        width: parent.width - Style.marginM * scaling * 2
-        height: parent.height - Style.marginM * scaling * 2
-        visible: barPosition === "left" || barPosition === "right"
+        width: parent.width - Style.marginM * 2
+        height: parent.height - Style.marginM * 2
+        visible: isVerticalBar
         z: 1 // Above the visualizer
 
         // Media icon
         Item {
-          width: Style.baseWidgetSize * 0.5 * scaling
-          height: Style.baseWidgetSize * 0.5 * scaling
+          width: Style.baseWidgetSize * 0.5
+          height: width
           anchors.centerIn: parent
 
           NIcon {
@@ -387,7 +445,7 @@ Item {
 
         onEntered: {
           var textToShow = hasActivePlayer ? tooltipText : placeholderText
-          if ((textToShow !== "") && (barPosition === "left" || barPosition === "right") || (scrollingMode === "never")) {
+          if ((textToShow !== "") && isVerticalBar || (scrollingMode === "never")) {
             TooltipService.show(Screen, root, textToShow, BarService.getTooltipDirection())
           }
         }

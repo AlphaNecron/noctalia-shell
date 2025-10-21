@@ -16,7 +16,6 @@ Singleton {
   property bool hasActiveRecording: false
   property string outputPath: ""
   property bool isAvailable: ProgramCheckerService.gpuScreenRecorderAvailable
-  property int currentTime: 0
 
   // Update availability when ProgramCheckerService completes its checks
   Connections {
@@ -43,14 +42,14 @@ Singleton {
 
     // First, ensure xdg-desktop-portal and a compositor portal are running
     portalCheckProcess.exec({
-                              "command": ["sh", "-c" // require core portal AND one of the backends
-                                , "pidof xdg-desktop-portal >/dev/null 2>&1 && (pidof xdg-desktop-portal-wlr >/dev/null 2>&1 || pidof xdg-desktop-portal-hyprland >/dev/null 2>&1 || pidof xdg-desktop-portal-gnome >/dev/null 2>&1 || pidof xdg-desktop-portal-kde >/dev/null 2>&1)"]
+                              "command": ["sh", "-c", // require core portal AND one of the backends
+                                "pidof xdg-desktop-portal >/dev/null 2>&1 && (pidof xdg-desktop-portal-wlr >/dev/null 2>&1 || pidof xdg-desktop-portal-hyprland >/dev/null 2>&1 || pidof xdg-desktop-portal-gnome >/dev/null 2>&1 || pidof xdg-desktop-portal-kde >/dev/null 2>&1)"]
                             })
   }
 
   function launchRecorder() {
     var filename = Time.getFormattedTimestamp() + ".mp4"
-    var videoDir = settings.directory
+    var videoDir = Settings.preprocessPath(settings.directory)
     if (videoDir && !videoDir.endsWith("/")) {
       videoDir += "/"
     }
@@ -80,6 +79,7 @@ Singleton {
     pendingTimer.running = true
   }
 
+  // Stop recording using Quickshell.execDetached
   function stopRecording() {
     if (!isRecording && !isPending) {
       return
@@ -105,14 +105,21 @@ Singleton {
     stdout: StdioCollector {}
     stderr: StdioCollector {}
     onExited: function (exitCode, exitStatus) {
-      currentTime = 0
       if (isPending) {
         // Process ended while we were pending - likely cancelled or error
         isPending = false
         pendingTimer.running = false
+
+        // Check if gpu-screen-recorder is not installed
+        const stdout = String(recorderProcess.stdout.text || "").trim()
+        if (stdout === "GPU_SCREEN_RECORDER_NOT_INSTALLED") {
+          ToastService.showError(I18n.tr("toast.recording.not-installed"), I18n.tr("toast.recording.not-installed-desc"), 7000)
+          return
+        }
+
         // If it failed to start, show a clear error toast with stderr
         if (exitCode !== 0) {
-          const err = String(stderr.text || "").trim()
+          const err = String(recorderProcess.stderr.text || "").trim()
           if (err.length > 0)
             ToastService.showError(I18n.tr("toast.recording.failed-start"), err, 7000)
           else
@@ -126,7 +133,7 @@ Singleton {
         if (exitCode === 0) {
           ToastService.showNotice(I18n.tr("toast.recording.saved"), outputPath, 5000)
         } else {
-          const err2 = String(stderr.text || "").trim()
+          const err2 = String(recorderProcess.stderr.text || "").trim()
           if (err2.length > 0)
             ToastService.showError(I18n.tr("toast.recording.failed-start"), err2, 7000)
           else
@@ -175,15 +182,13 @@ Singleton {
   // Monitor timer to periodically check if we're still recording
   Timer {
     id: monitorTimer
-    interval: 1000
+    interval: 2000
     running: false
     repeat: true
     onTriggered: {
       if (!recorderProcess.running && isRecording) {
         isRecording = false
         running = false
-      } else {
-        currentTime++
       }
     }
   }

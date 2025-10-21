@@ -14,6 +14,8 @@ Singleton {
   readonly property alias data: adapter
   property bool isLoaded: false
   property bool directoriesCreated: false
+  property int settingsVersion: 16
+  property bool isDebug: Quickshell.env("NOCTALIA_DEBUG") === "1"
 
   // Define our app directories
   // Default config directory: ~/.config/noctalia
@@ -33,6 +35,7 @@ Singleton {
 
   // Signal emitted when settings are loaded after startupcale changes
   signal settingsLoaded
+  signal settingsSaved
 
   // -----------------------------------------------------
   // -----------------------------------------------------
@@ -71,11 +74,7 @@ Singleton {
     running: false
     interval: 1000
     onTriggered: {
-      settingsFileView.writeAdapter()
-      // Write to fallback location if set
-      if (Quickshell.env("NOCTALIA_SETTINGS_FALLBACK")) {
-        settingsFallbackFileView.writeAdapter()
-      }
+      root.saveImmediate()
     }
   }
 
@@ -95,7 +94,7 @@ Singleton {
     }
     onLoaded: function () {
       if (!isLoaded) {
-        Logger.log("Settings", "Settings loaded")
+        Logger.i("Settings", "Settings loaded")
 
         upgradeSettingsData()
         validateMonitorConfigurations()
@@ -103,6 +102,9 @@ Singleton {
 
         // Emit the signal
         root.settingsLoaded()
+
+        // Finally, update our local settings version
+        adapter.settingsVersion = settingsVersion
       }
     }
     onLoadFailed: function (error) {
@@ -128,7 +130,8 @@ Singleton {
   JsonAdapter {
     id: adapter
 
-    property int settingsVersion: 15
+    property int settingsVersion: root.settingsVersion
+    property bool setupCompleted: false
 
     // bar
     property JsonObject bar: JsonObject {
@@ -163,10 +166,6 @@ Singleton {
           }, {
             "id": "NotificationHistory"
           }, {
-            "id": "WiFi"
-          }, {
-            "id": "Bluetooth"
-          }, {
             "id": "Battery"
           }, {
             "id": "Volume"
@@ -186,15 +185,20 @@ Singleton {
       property bool dimDesktop: true
       property bool showScreenCorners: false
       property bool forceBlackScreenCorners: false
+      property real scaleRatio: 1.0
       property real radiusRatio: 1.0
       property real screenRadiusRatio: 1.0
       property real animationSpeed: 1.0
       property bool animationDisabled: false
+      property bool compactLockScreen: false
+      property bool lockOnSuspend: true
+      property string language: ""
     }
 
     // location
     property JsonObject location: JsonObject {
       property string name: defaultLocation
+      property bool weatherEnabled: true
       property bool useFahrenheit: false
       property bool use12hourFormat: false
       property bool showWeekNumberInCalendar: false
@@ -246,6 +250,43 @@ Singleton {
     property JsonObject controlCenter: JsonObject {
       // Position: close_to_bar_button, center, top_left, top_right, bottom_left, bottom_right, bottom_center, top_center
       property string position: "close_to_bar_button"
+      property JsonObject shortcuts
+      shortcuts: JsonObject {
+        property list<var> left: [{
+            "id": "WiFi"
+          }, {
+            "id": "Bluetooth"
+          }, {
+            "id": "ScreenRecorder"
+          }, {
+            "id": "WallpaperSelector"
+          }]
+        property list<var> right: [{
+            "id": "Notifications"
+          }, {
+            "id": "PowerProfile"
+          }, {
+            "id": "KeepAwake"
+          }, {
+            "id": "NightLight"
+          }]
+      }
+      property list<var> cards: [{
+          "id": "profile-card",
+          "enabled": true
+        }, {
+          "id": "shortcuts-card",
+          "enabled": true
+        }, {
+          "id": "audio-card",
+          "enabled": true
+        }, {
+          "id": "weather-card",
+          "enabled": true
+        }, {
+          "id": "media-sysmon-card",
+          "enabled": true
+        }]
     }
 
     // dock
@@ -253,10 +294,12 @@ Singleton {
       property string displayMode: "always_visible" // "always_visible", "auto_hide", "exclusive"
       property real backgroundOpacity: 1.0
       property real floatingRatio: 1.0
+      property real size: 1
       property bool onlySameOutput: true
       property list<string> monitors: []
       // Desktop entry IDs pinned to the dock (e.g., "org.kde.konsole", "firefox.desktop")
       property list<string> pinnedApps: []
+      property bool colorizeIcons: false
     }
 
     // network
@@ -270,7 +313,6 @@ Singleton {
       property list<string> monitors: []
       property string location: "top_right"
       property bool alwaysOnTop: false
-      property real lastSeenTs: 0
       property bool respectExpireTimeout: false
       property int lowUrgencyDuration: 3
       property int normalUrgencyDuration: 8
@@ -283,6 +325,7 @@ Singleton {
       property string location: "top_right"
       property list<string> monitors: []
       property int autoHideMs: 2000
+      property bool alwaysOnTop: false
     }
 
     // audio
@@ -301,9 +344,8 @@ Singleton {
       property string fontFixed: "DejaVu Sans Mono"
       property real fontDefaultScale: 1.0
       property real fontFixedScale: 1.0
-      property list<var> monitorsScaling: []
-      property bool idleInhibitorEnabled: false
       property bool tooltipsEnabled: true
+      property bool panelsOverlayLayer: true
     }
 
     // brightness
@@ -315,6 +357,9 @@ Singleton {
       property bool useWallpaperColors: false
       property string predefinedScheme: "Noctalia (default)"
       property bool darkMode: true
+      property string schedulingMode: "off"
+      property string manualSunrise: "06:30"
+      property string manualSunset: "18:30"
       property string matugenSchemeType: "scheme-fruit-salad"
       property bool generateTemplatesForPredefined: true
     }
@@ -323,12 +368,20 @@ Singleton {
     property JsonObject templates: JsonObject {
       property bool gtk: false
       property bool qt: false
+      property bool kcolorscheme: false
       property bool kitty: false
       property bool ghostty: false
       property bool foot: false
       property bool fuzzel: false
-      property bool vesktop: false
+      property bool discord: false
+      property bool discord_vesktop: false
+      property bool discord_webcord: false
+      property bool discord_armcord: false
+      property bool discord_equibop: false
+      property bool discord_lightcord: false
+      property bool discord_dorion: false
       property bool pywalfox: false
+      property bool vicinae: false
       property bool enableUserTemplates: false
     }
 
@@ -349,13 +402,46 @@ Singleton {
       property string wallpaperChange: ""
       property string darkModeChange: ""
     }
+
+    // battery
+    property JsonObject battery: JsonObject {
+      property int chargingMode: 0
+    }
+  }
+
+  // -----------------------------------------------------
+  // Function to preprocess paths by expanding "~" to user's home directory
+  function preprocessPath(path) {
+    if (typeof path !== "string" || path === "") {
+      return path
+    }
+
+    // Expand "~" to user's home directory
+    if (path.startsWith("~/")) {
+      return Quickshell.env("HOME") + path.substring(1)
+    } else if (path === "~") {
+      return Quickshell.env("HOME")
+    }
+
+    return path
+  }
+
+  // -----------------------------------------------------
+  // Public function to trigger immediate settings saving
+  function saveImmediate() {
+    settingsFileView.writeAdapter()
+    // Write to fallback location if set
+    if (Quickshell.env("NOCTALIA_SETTINGS_FALLBACK")) {
+      settingsFallbackFileView.writeAdapter()
+    }
+    root.settingsSaved() // Emit signal after saving
   }
 
   // -----------------------------------------------------
   // Generate default settings at the root of the repo
   function generateDefaultSettings() {
     try {
-      Logger.log("Settings", "Generating settings-default.json")
+      Logger.d("Settings", "Generating settings-default.json")
 
       // Prepare a clean JSON
       var plainAdapter = QtObj2JS.qtObjectToPlainObject(adapter)
@@ -367,7 +453,7 @@ Singleton {
       var base64Data = Qt.btoa(jsonData)
       Quickshell.execDetached(["sh", "-c", `echo "${base64Data}" | base64 -d > "${defaultPath}"`])
     } catch (error) {
-      Logger.error("Settings", "Failed to generate default settings file: " + error)
+      Logger.e("Settings", "Failed to generate default settings file: " + error)
     }
   }
 
@@ -379,8 +465,8 @@ Singleton {
       availableScreenNames.push(Quickshell.screens[i].name)
     }
 
-    Logger.log("Settings", "Available monitors: [" + availableScreenNames.join(", ") + "]")
-    Logger.log("Settings", "Configured bar monitors: [" + adapter.bar.monitors.join(", ") + "]")
+    Logger.d("Settings", "Available monitors: [" + availableScreenNames.join(", ") + "]")
+    Logger.d("Settings", "Configured bar monitors: [" + adapter.bar.monitors.join(", ") + "]")
 
     // Check bar monitors
     if (adapter.bar.monitors.length > 0) {
@@ -392,15 +478,15 @@ Singleton {
         }
       }
       if (!hasValidBarMonitor) {
-        Logger.warn("Settings", "No configured bar monitors found on system, clearing bar monitor list to show on all screens")
+        Logger.w("Settings", "No configured bar monitors found on system, clearing bar monitor list to show on all screens")
         adapter.bar.monitors = []
       } else {
 
-        //Logger.log("Settings", "Found valid bar monitors, keeping configuration")
+        //Logger.i("Settings", "Found valid bar monitors, keeping configuration")
       }
     } else {
 
-      //Logger.log("Settings", "Bar monitor list is empty, will show on all available screens")
+      //Logger.i("Settings", "Bar monitor list is empty, will show on all available screens")
     }
   }
 
@@ -410,7 +496,7 @@ Singleton {
   function upgradeSettingsData() {
     // Wait for BarWidgetRegistry to be ready
     if (!BarWidgetRegistry.widgets || Object.keys(BarWidgetRegistry.widgets).length === 0) {
-      Logger.warn("Settings", "BarWidgetRegistry not ready, deferring upgrade")
+      Logger.w("Settings", "BarWidgetRegistry not ready, deferring upgrade")
       Qt.callLater(upgradeSettingsData)
       return
     }
@@ -451,7 +537,7 @@ Singleton {
       for (var i = widgets.length - 1; i >= 0; i--) {
         var widget = widgets[i]
         if (!BarWidgetRegistry.hasWidget(widget.id)) {
-          Logger.warn(`Settings`, `Deleted invalid widget ${widget.id}`)
+          Logger.w(`Settings`, `Deleted invalid widget ${widget.id}`)
           widgets.splice(i, 1)
           removedWidget = true
         }
@@ -472,7 +558,7 @@ Singleton {
         }
 
         if (upgradeWidget(widget)) {
-          Logger.log("Settings", `Upgraded ${widget.id} widget:`, JSON.stringify(widget))
+          Logger.d("Settings", `Upgraded ${widget.id} widget:`, JSON.stringify(widget))
         }
       }
     }
@@ -498,7 +584,7 @@ Singleton {
         adapter.bar.widgets["right"].push(({
                                              "id": "ControlCenter"
                                            }))
-        Logger.warn("Settings", "Added a ControlCenter widget to the right section")
+        Logger.w("Settings", "Added a ControlCenter widget to the right section")
       }
     }
   }

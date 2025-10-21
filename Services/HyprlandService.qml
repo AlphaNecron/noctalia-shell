@@ -1,6 +1,7 @@
 import QtQuick
 import Quickshell
 import Quickshell.Hyprland
+import Quickshell.Io
 import qs.Commons
 
 Item {
@@ -15,6 +16,7 @@ Item {
   signal workspaceChanged
   signal activeWindowChanged
   signal windowListChanged
+  signal displayScalesChanged
 
   // Hyprland-specific properties
   property bool initialized: false
@@ -40,14 +42,76 @@ Item {
       Qt.callLater(() => {
                      safeUpdateWorkspaces()
                      safeUpdateWindows()
+                     queryDisplayScales()
                    })
       initialized = true
-      Logger.log("HyprlandService", "Initialized successfully")
+      Logger.i("HyprlandService", "Initialized successfully")
     } catch (e) {
-      Logger.error("HyprlandService", "Failed to initialize:", e)
+      Logger.e("HyprlandService", "Failed to initialize:", e)
     }
   }
 
+  // Query display scales
+  function queryDisplayScales() {
+    hyprlandMonitorsProcess.running = true
+  }
+
+  // Hyprland monitors process for display scale detection
+  // Hyprland monitors process for display scale detection
+  Process {
+    id: hyprlandMonitorsProcess
+    running: false
+    command: ["hyprctl", "monitors", "-j"]
+
+    property string accumulatedOutput: ""
+
+    stdout: SplitParser {
+      onRead: function (line) {
+        // Accumulate lines instead of parsing each one
+        hyprlandMonitorsProcess.accumulatedOutput += line
+      }
+    }
+
+    onExited: function (exitCode) {
+      if (exitCode !== 0 || !accumulatedOutput) {
+        Logger.e("HyprlandService", "Failed to query monitors, exit code:", exitCode)
+        accumulatedOutput = ""
+        return
+      }
+
+      try {
+        const monitorsData = JSON.parse(accumulatedOutput)
+        const scales = {}
+
+        for (const monitor of monitorsData) {
+          if (monitor.name) {
+            scales[monitor.name] = {
+              "name": monitor.name,
+              "scale": monitor.scale || 1.0,
+              "width": monitor.width || 0,
+              "height": monitor.height || 0,
+              "refresh_rate": monitor.refreshRate || 0,
+              "x": monitor.x || 0,
+              "y": monitor.y || 0,
+              "active_workspace": monitor.activeWorkspace ? monitor.activeWorkspace.id : -1,
+              "vrr": monitor.vrr || false,
+              "focused": monitor.focused || false
+            }
+          }
+        }
+
+        // Notify CompositorService (it will emit displayScalesChanged)
+        if (CompositorService && CompositorService.onDisplayScalesUpdated) {
+          CompositorService.onDisplayScalesUpdated(scales)
+        }
+      } catch (e) {
+        Logger.e("HyprlandService", "Failed to parse monitors:", e)
+      } finally {
+        // Clear accumulated output for next query
+        accumulatedOutput = ""
+      }
+    }
+  }
   // Safe update wrapper
   function safeUpdate() {
     safeUpdateWindows()
@@ -88,7 +152,7 @@ Item {
         workspaces.append(wsData)
       }
     } catch (e) {
-      Logger.error("HyprlandService", "Error updating workspaces:", e)
+      Logger.e("HyprlandService", "Error updating workspaces:", e)
     }
   }
 
@@ -163,7 +227,7 @@ Item {
         activeWindowChanged()
       }
     } catch (e) {
-      Logger.error("HyprlandService", "Error updating windows:", e)
+      Logger.e("HyprlandService", "Error updating windows:", e)
     }
   }
 
@@ -178,8 +242,8 @@ Item {
       if (!windowId)
         return null
 
-      const appId = extractAppId(toplevel)
-      const title = safeGetProperty(toplevel, "title", "")
+      const appId = getAppId(toplevel)
+      const title = getAppTitle(toplevel)
       const wsId = toplevel.workspace ? toplevel.workspace.id : null
       const focused = toplevel.activated === true
       const output = toplevel.monitor?.name || ""
@@ -188,7 +252,7 @@ Item {
         "id": windowId,
         "title": title,
         "appId": appId,
-        "workspaceId": wsId,
+        "workspaceId": wsId || -1,
         "isFocused": focused,
         "output": output
       }
@@ -197,13 +261,37 @@ Item {
     }
   }
 
-  // Extract app ID from various possible sources
-  function extractAppId(toplevel) {
+  function getAppTitle(toplevel) {
+    try {
+      var title = toplevel.wayland.title
+      if (title)
+        return title
+    } catch (e) {
+
+    }
+
+    return safeGetProperty(toplevel, "title", "")
+  }
+
+  function getAppId(toplevel) {
     if (!toplevel)
       return ""
 
+    var appId = ""
+
+    // Try the wayland object first!
+    // From my (Lemmy) testing it works fine so we could probably get rid of all the other attempts below.
+    // Leaving them in for now, just in case...
+    try {
+      appId = toplevel.wayland.appId
+      if (appId)
+        return appId
+    } catch (e) {
+
+    }
+
     // Try direct properties
-    var appId = safeGetProperty(toplevel, "class", "")
+    appId = safeGetProperty(toplevel, "class", "")
     if (appId)
       return appId
 
@@ -223,7 +311,6 @@ Item {
       }
     } catch (e) {
 
-      // Ignore IPC errors
     }
 
     return ""
@@ -265,9 +352,15 @@ Item {
     target: Hyprland
     enabled: initialized
     function onRawEvent(event) {
+      Hyprland.refreshWorkspaces()
       safeUpdateWorkspaces()
       workspaceChanged()
       updateTimer.restart()
+
+      const monitorsEvents = ["configreloaded", "monitoradded", "monitorremoved", "monitoraddedv2", "monitorremovedv2"]
+      if (monitorsEvents.includes(event.name)) {
+        Qt.callLater(queryDisplayScales)
+      }
     }
   }
 
@@ -276,7 +369,7 @@ Item {
     try {
       Hyprland.dispatch(`workspace ${workspace.idx}`)
     } catch (e) {
-      Logger.error("HyprlandService", "Failed to switch workspace:", e)
+      Logger.e("HyprlandService", "Failed to switch workspace:", e)
     }
   }
 
@@ -284,7 +377,7 @@ Item {
     try {
       Hyprland.dispatch(`focuswindow address:0x${window.id.toString()}`)
     } catch (e) {
-      Logger.error("HyprlandService", "Failed to switch window:", e)
+      Logger.e("HyprlandService", "Failed to switch window:", e)
     }
   }
 
@@ -292,7 +385,7 @@ Item {
     try {
       Hyprland.dispatch(`killwindow address:0x${window.id}`)
     } catch (e) {
-      Logger.error("HyprlandService", "Failed to close window:", e)
+      Logger.e("HyprlandService", "Failed to close window:", e)
     }
   }
 
@@ -300,7 +393,7 @@ Item {
     try {
       Quickshell.execDetached(["hyprctl", "dispatch", "exit"])
     } catch (e) {
-      Logger.error("HyprlandService", "Failed to logout:", e)
+      Logger.e("HyprlandService", "Failed to logout:", e)
     }
   }
 }

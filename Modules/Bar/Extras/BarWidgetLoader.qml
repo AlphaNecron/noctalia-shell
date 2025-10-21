@@ -12,22 +12,15 @@ Item {
   property string section: widgetProps && widgetProps.section || ""
   property int sectionIndex: widgetProps && widgetProps.sectionWidgetIndex || 0
 
+  property string barDensity: "default"
+  readonly property real scaling: barDensity === "mini" ? 0.8 : (barDensity === "compact" ? 0.9 : 1.0)
+
   // Don't reserve space unless the loaded widget is really visible
   implicitWidth: getImplicitSize(loader.item, "implicitWidth")
   implicitHeight: getImplicitSize(loader.item, "implicitHeight")
 
-  Connections {
-    target: ScalingService
-    enabled: loader.item && (loader.item.screen !== undefined)
-    function onScaleChanged(aScreenName, scale) {
-      if (loader.item && loader.item.screen && aScreenName === screenName) {
-        loader.item['scaling'] = scale
-      }
-    }
-  }
-
   function getImplicitSize(item, prop) {
-    return (item && item.visible) ? item[prop] : 0
+    return (item && item.visible) ? Math.round(item[prop]) : 0
   }
 
   Loader {
@@ -50,6 +43,12 @@ Item {
             item[prop] = widgetProps[prop]
           }
         }
+        // Explicitly set scaling property
+        if (item.hasOwnProperty("scaling")) {
+          item.scaling = Qt.binding(function () {
+            return root.scaling
+          })
+        }
       }
 
       // Register this widget instance with BarService
@@ -61,7 +60,7 @@ Item {
         item.onLoaded()
       }
 
-      //Logger.log("BarWidgetLoader", "Loaded", widgetId, "on screen", item.screen.name)
+      //Logger.i("BarWidgetLoader", "Loaded", widgetId, "on screen", item.screen.name)
     }
 
     Component.onDestruction: {
@@ -77,7 +76,7 @@ Item {
   // Error handling
   onWidgetIdChanged: {
     if (widgetId && !BarWidgetRegistry.hasWidget(widgetId)) {
-      Logger.warn("BarWidgetLoader", "Widget not found in bar registry:", widgetId)
+      Logger.w("BarWidgetLoader", "Widget not found in registry:", widgetId)
     }
   }
 }

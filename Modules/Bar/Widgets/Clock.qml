@@ -9,13 +9,13 @@ Rectangle {
   id: root
 
   property ShellScreen screen
-  property real scaling: 1.0
 
   // Widget properties passed from Bar.qml for per-instance settings
   property string widgetId: ""
   property string section: ""
   property int sectionWidgetIndex: -1
   property int sectionWidgetsCount: 0
+  property real scaling: 1.0
 
   property var widgetMetadata: BarWidgetRegistry.widgetMetadata[widgetId]
   property var widgetSettings: {
@@ -30,7 +30,7 @@ Rectangle {
 
   readonly property string barPosition: Settings.data.bar.position
   readonly property bool isBarVertical: barPosition === "left" || barPosition === "right"
-  readonly property bool compact: (Settings.data.bar.density === "compact")
+  readonly property bool density: Settings.data.bar.density
 
   readonly property var now: Time.date
 
@@ -41,11 +41,11 @@ Rectangle {
   readonly property string formatHorizontal: widgetSettings.formatHorizontal !== undefined ? widgetSettings.formatHorizontal : widgetMetadata.formatHorizontal
   readonly property string formatVertical: widgetSettings.formatVertical !== undefined ? widgetSettings.formatVertical : widgetMetadata.formatVertical
 
-  implicitWidth: isBarVertical ? Math.round(Style.capsuleHeight * scaling) : Math.round((isBarVertical ? verticalLoader.implicitWidth : horizontalLoader.implicitWidth) + Style.marginM * 2 * scaling)
+  implicitWidth: isBarVertical ? Style.capsuleHeight : Math.round((isBarVertical ? verticalLoader.implicitWidth : horizontalLoader.implicitWidth) + Style.marginM * 2)
 
-  implicitHeight: isBarVertical ? Math.round(verticalLoader.implicitHeight + Style.marginS * 2 * scaling) : Math.round(Style.capsuleHeight * scaling)
+  implicitHeight: isBarVertical ? Math.round(verticalLoader.implicitHeight + Style.marginS * 2) : Style.capsuleHeight
 
-  radius: Math.round(Style.radiusS * scaling)
+  radius: Style.radiusS
   color: Settings.data.bar.showCapsule ? Color.mSurfaceVariant : Color.transparent
 
   Item {
@@ -59,7 +59,7 @@ Rectangle {
       anchors.centerIn: parent
       sourceComponent: ColumnLayout {
         anchors.centerIn: parent
-        spacing: Settings.data.bar.showCapsule ? -4 * scaling : -2 * scaling
+        spacing: Settings.data.bar.showCapsule ? -4 : -2
         Repeater {
           id: repeater
           model: Qt.locale().toString(now, formatHorizontal.trim()).split("\\n")
@@ -67,13 +67,16 @@ Rectangle {
             visible: text !== ""
             text: modelData
             family: useCustomFont && customFont ? customFont : Settings.data.ui.fontDefault
-            pointSize: {
-              if (repeater.model.length == 1) {
-                return Style.fontSizeS * scaling
-              } else {
-                return (index == 0) ? Style.fontSizeXS * scaling : Style.fontSizeXXS * scaling
+            Binding on pointSize {
+              value: {
+                if (repeater.model.length == 1) {
+                  return Style.fontSizeS * scaling
+                } else {
+                  return (index == 0) ? Style.fontSizeXS * scaling : Style.fontSizeXXS * scaling
+                }
               }
             }
+            applyUiScale: false
             font.weight: Style.fontWeightBold
             color: usePrimaryColor ? Color.mPrimary : Color.mOnSurface
             wrapMode: Text.WordWrap
@@ -90,14 +93,18 @@ Rectangle {
       anchors.centerIn: parent // Now this works without layout conflicts
       sourceComponent: ColumnLayout {
         anchors.centerIn: parent
-        spacing: -2 * scaling
+        spacing: -2
         Repeater {
           model: Qt.locale().toString(now, formatVertical.trim()).split(" ")
           delegate: NText {
             visible: text !== ""
             text: modelData
             family: useCustomFont && customFont ? customFont : Settings.data.ui.fontDefault
-            pointSize: Style.fontSizeS * scaling
+            Binding on pointSize {
+              value: Style.fontSizeS * scaling
+            }
+            applyUiScale: false
+
             font.weight: Style.fontWeightBold
             color: usePrimaryColor ? Color.mPrimary : Color.mOnSurface
             wrapMode: Text.WordWrap

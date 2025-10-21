@@ -2,6 +2,7 @@ pragma Singleton
 
 import QtQuick
 import Quickshell
+import Quickshell.Io
 import qs.Commons
 import qs.Services
 
@@ -18,6 +19,10 @@ Singleton {
   property ListModel windows: ListModel {}
   property int focusedWindowIndex: -1
 
+  // Display scale data
+  property var displayScales: ({})
+  property bool displayScalesLoaded: false
+
   // Generic events
   signal workspaceChanged
   signal activeWindowChanged
@@ -26,7 +31,18 @@ Singleton {
   // Backend service loader
   property var backend: null
 
+  // Cache file path
+  property string displayCachePath: ""
+
   Component.onCompleted: {
+    // Setup cache path (needs Settings to be available)
+    Qt.callLater(() => {
+                   if (typeof Settings !== 'undefined' && Settings.cacheDir) {
+                     displayCachePath = Settings.cacheDir + "display.json"
+                     displayCacheFileView.path = displayCachePath
+                   }
+                 })
+
     detectCompositor()
   }
 
@@ -66,6 +82,31 @@ Singleton {
         setupBackendConnections()
         backend.initialize()
       }
+    }
+  }
+
+  // Cache FileView for display scales
+  FileView {
+    id: displayCacheFileView
+    printErrors: false
+    watchChanges: false
+
+    adapter: JsonAdapter {
+      id: displayCacheAdapter
+      property var displays: ({})
+    }
+
+    onLoaded: {
+      // Load cached display scales
+      displayScales = displayCacheAdapter.displays || {}
+      displayScalesLoaded = true
+      // Logger.i("CompositorService", "Loaded display scales from cache:", JSON.stringify(displayScales))
+    }
+
+    onLoadFailed: {
+      // Cache doesn't exist yet, will be created on first update
+      displayScalesLoaded = true
+      // Logger.i("CompositorService", "No display cache found, will create on first update")
     }
   }
 
@@ -151,6 +192,50 @@ Singleton {
     windowListChanged()
   }
 
+  // Update display scales from backend
+  function updateDisplayScales() {
+    if (!backend || !backend.queryDisplayScales) {
+      Logger.w("CompositorService", "Backend does not support display scale queries")
+      return
+    }
+
+    backend.queryDisplayScales()
+  }
+
+  // Called by backend when display scales are ready
+  function onDisplayScalesUpdated(scales) {
+    displayScales = scales
+    saveDisplayScalesToCache()
+    displayScalesChanged()
+    Logger.i("CompositorService", "Display scales updated")
+  }
+
+  // Save display scales to cache
+  function saveDisplayScalesToCache() {
+    if (!displayCachePath) {
+      return
+    }
+
+    displayCacheAdapter.displays = displayScales
+    displayCacheFileView.writeAdapter()
+  }
+
+  // Public function to get scale for a specific display
+  function getDisplayScale(displayName) {
+    if (!displayName || !displayScales[displayName]) {
+      return 1.0
+    }
+    return displayScales[displayName].scale || 1.0
+  }
+
+  // Public function to get all display info for a specific display
+  function getDisplayInfo(displayName) {
+    if (!displayName || !displayScales[displayName]) {
+      return null
+    }
+    return displayScales[displayName]
+  }
+
   // Get focused window
   function getFocusedWindow() {
     if (focusedWindowIndex >= 0 && focusedWindowIndex < windows.count) {
@@ -171,12 +256,23 @@ Singleton {
     return ""
   }
 
+  function getWindowsForWorkspace(workspaceId) {
+    var windowsInWs = []
+    for (var i = 0; i < windows.count; i++) {
+      var window = windows.get(i)
+      if (window.workspaceId === workspaceId) {
+        windowsInWs.push(window)
+      }
+    }
+    return windowsInWs
+  }
+
   // Generic workspace switching
   function switchToWorkspace(workspace) {
     if (backend && backend.switchToWorkspace) {
       backend.switchToWorkspace(workspace)
     } else {
-      Logger.warn("Compositor", "No backend available for workspace switching")
+      Logger.w("Compositor", "No backend available for workspace switching")
     }
   }
 
@@ -208,7 +304,7 @@ Singleton {
     if (backend && backend.focusWindow) {
       backend.focusWindow(window)
     } else {
-      Logger.warn("Compositor", "No backend available for window focus")
+      Logger.w("Compositor", "No backend available for window focus")
     }
   }
 
@@ -217,38 +313,43 @@ Singleton {
     if (backend && backend.closeWindow) {
       backend.closeWindow(window)
     } else {
-      Logger.warn("Compositor", "No backend available for window closing")
+      Logger.w("Compositor", "No backend available for window closing")
     }
   }
 
   // Session management
   function logout() {
     if (backend && backend.logout) {
+      Logger.i("Compositor", "Logout requested")
       backend.logout()
     } else {
-      Logger.warn("Compositor", "No backend available for logout")
+      Logger.w("Compositor", "No backend available for logout")
     }
   }
 
   function shutdown() {
+    Logger.i("Compositor", "Shutdown requested")
     Quickshell.execDetached(["shutdown", "-h", "now"])
   }
 
   function reboot() {
+    Logger.i("Compositor", "Reboot requested")
     Quickshell.execDetached(["reboot"])
   }
 
   function suspend() {
+    Logger.i("Compositor", "Suspend requested")
     Quickshell.execDetached(["systemctl", "suspend"])
   }
 
   function lockAndSuspend() {
+    Logger.i("Compositor", "Lock and suspend requested")
     try {
       if (PanelService && PanelService.lockScreen && !PanelService.lockScreen.active) {
         PanelService.lockScreen.active = true
       }
     } catch (e) {
-      Logger.warn("Compositor", "Failed to activate lock screen before suspend: " + e)
+      Logger.w("Compositor", "Failed to activate lock screen before suspend: " + e)
     }
     // Queue suspend to the next event loop cycle to allow lock UI to render
     Qt.callLater(suspend)

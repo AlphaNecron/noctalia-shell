@@ -12,15 +12,12 @@ Item {
   property string text: ""
   property string suffix: ""
   property string tooltipText: ""
+  property string density: ""
   property bool autoHide: false
   property bool forceOpen: false
   property bool forceClose: false
-  property bool disableOpen: false
-  property bool rightOpen: false
+  property bool oppositeDirection: false
   property bool hovered: false
-  property bool compact: false
-  property var colorBg: null
-  property var colorFg: null
 
   readonly property string barPosition: Settings.data.bar.position
   readonly property bool isVerticalBar: barPosition === "left" || barPosition === "right"
@@ -53,12 +50,9 @@ Item {
         autoHide: root.autoHide
         forceOpen: root.forceOpen
         forceClose: root.forceClose
-        disableOpen: root.disableOpen
-        rightOpen: root.rightOpen
+        oppositeDirection: root.oppositeDirection
         hovered: root.hovered
-        colorBg: root.colorBg
-        colorFg: root.colorFg
-        compact: root.compact
+        density: root.density
         onShown: root.shown()
         onHidden: root.hidden()
         onEntered: root.entered()
@@ -80,12 +74,9 @@ Item {
         autoHide: root.autoHide
         forceOpen: root.forceOpen
         forceClose: root.forceClose
-        disableOpen: root.disableOpen
-        rightOpen: root.rightOpen
+        oppositeDirection: root.oppositeDirection
         hovered: root.hovered
-        colorBg: root.colorBg
-        colorFg: root.colorFg
-        compact: root.compact
+        density: root.density
         onShown: root.shown()
         onHidden: root.hidden()
         onEntered: root.entered()

@@ -9,12 +9,13 @@ ColumnLayout {
 
   property string label: ""
   property string description: ""
+  property string inputIconName: ""
   property bool readOnly: false
   property bool enabled: true
   property color labelColor: Color.mOnSurface
   property color descriptionColor: Color.mOnSurfaceVariant
   property string fontFamily: Settings.data.ui.fontDefault
-  property real fontSize: Style.fontSizeS * scaling
+  property real fontSize: Style.fontSizeS
   property int fontWeight: Style.fontWeightRegular
 
   property alias text: input.text
@@ -24,7 +25,7 @@ ColumnLayout {
 
   signal editingFinished
 
-  spacing: Style.marginS * scaling
+  spacing: Style.marginS
 
   NLabel {
     label: root.label
@@ -40,8 +41,8 @@ ColumnLayout {
     id: frameControl
 
     Layout.fillWidth: true
-    Layout.minimumWidth: 80 * scaling
-    implicitHeight: Style.baseWidgetSize * 1.1 * scaling
+    Layout.minimumWidth: 80 * Style.uiScaleRatio
+    implicitHeight: Style.baseWidgetSize * 1.1 * Style.uiScaleRatio
 
     // This is important - makes the control accept focus
     focusPolicy: Qt.StrongFocus
@@ -50,10 +51,10 @@ ColumnLayout {
     background: Rectangle {
       id: frame
 
-      radius: Style.radiusM * scaling
+      radius: Style.radiusM
       color: Color.mSurface
       border.color: input.activeFocus ? Color.mSecondary : Color.mOutline
-      border.width: Math.max(1, Style.borderS * scaling)
+      border.width: Math.max(1, Style.borderS)
 
       Behavior on border.color {
         ColorAnimation {
@@ -79,7 +80,7 @@ ColumnLayout {
                      input.forceActiveFocus()
                      var inputPos = mapToItem(inputContainer, mouse.x, mouse.y)
                      if (inputPos.x >= 0 && inputPos.x <= inputContainer.width) {
-                       var textPos = inputPos.x - Style.marginM * scaling
+                       var textPos = inputPos.x - Style.marginM
                        if (textPos >= 0 && textPos <= input.width) {
                          input.cursorPosition = input.positionAt(textPos, input.height / 2)
                        }
@@ -105,75 +106,116 @@ ColumnLayout {
       Item {
         id: inputContainer
         anchors.fill: parent
-        anchors.leftMargin: Style.marginM * scaling
-        anchors.rightMargin: Style.marginM * scaling
+        anchors.leftMargin: Style.marginM
+        // anchors.rightMargin: Style.marginM
+        clip: true
         z: 1
 
-        TextField {
-          id: input
-
+        RowLayout {
           anchors.fill: parent
-          verticalAlignment: TextInput.AlignVCenter
+          spacing: 0
 
-          echoMode: TextInput.Normal
-          readOnly: root.readOnly
-          enabled: root.enabled
-          color: Color.mOnSurface
-          placeholderTextColor: Qt.alpha(Color.mOnSurfaceVariant, 0.6)
+          NIcon {
+            id: inputIcon
+            icon: root.inputIconName
 
-          selectByMouse: true
+            visible: root.inputIconName !== ""
+            enabled: false
 
-          topPadding: 0
-          bottomPadding: 0
-          leftPadding: 0
-          rightPadding: 0
+            Layout.alignment: Qt.AlignVCenter
+            Layout.rightMargin: visible ? Style.marginS : 0
+          }
 
-          background: null
+          TextField {
+            id: input
 
-          font.family: root.fontFamily
-          font.pointSize: root.fontSize
-          font.weight: root.fontWeight
+            Layout.fillWidth: true
+            Layout.fillHeight: true
 
-          onEditingFinished: root.editingFinished()
+            verticalAlignment: TextInput.AlignVCenter
 
-          // Override mouse handling to prevent propagation
-          MouseArea {
-            id: textFieldMouse
-            anchors.fill: parent
-            acceptedButtons: Qt.AllButtons
-            preventStealing: true
-            propagateComposedEvents: false
-            cursorShape: Qt.IBeamCursor
+            echoMode: TextInput.Normal
+            readOnly: root.readOnly
+            enabled: root.enabled
+            color: Color.mOnSurface
+            placeholderTextColor: Qt.alpha(Color.mOnSurfaceVariant, 0.6)
 
-            property int selectionStart: 0
+            selectByMouse: true
 
-            onPressed: mouse => {
-                         mouse.accepted = true
-                         input.forceActiveFocus()
-                         var pos = input.positionAt(mouse.x, mouse.y)
-                         input.cursorPosition = pos
-                         selectionStart = pos
-                       }
+            topPadding: 0
+            bottomPadding: 0
+            leftPadding: 0
+            rightPadding: 0
 
-            onPositionChanged: mouse => {
-                                 if (mouse.buttons & Qt.LeftButton) {
-                                   mouse.accepted = true
-                                   var pos = input.positionAt(mouse.x, mouse.y)
-                                   input.select(selectionStart, pos)
+            background: null
+
+            font.family: root.fontFamily
+            font.pointSize: root.fontSize * Style.uiScaleRatio
+            font.weight: root.fontWeight
+
+            onEditingFinished: root.editingFinished()
+
+            // Override mouse handling to prevent propagation
+            MouseArea {
+              id: textFieldMouse
+              anchors.fill: parent
+              acceptedButtons: Qt.AllButtons
+              preventStealing: true
+              propagateComposedEvents: false
+              cursorShape: Qt.IBeamCursor
+
+              property int selectionStart: 0
+
+              onPressed: mouse => {
+                           mouse.accepted = true
+                           input.forceActiveFocus()
+                           var pos = input.positionAt(mouse.x, mouse.y)
+                           input.cursorPosition = pos
+                           selectionStart = pos
+                         }
+
+              onPositionChanged: mouse => {
+                                   if (mouse.buttons & Qt.LeftButton) {
+                                     mouse.accepted = true
+                                     var pos = input.positionAt(mouse.x, mouse.y)
+                                     input.select(selectionStart, pos)
+                                   }
                                  }
+
+              onDoubleClicked: mouse => {
+                                 mouse.accepted = true
+                                 input.selectAll()
                                }
 
-            onDoubleClicked: mouse => {
-                               mouse.accepted = true
-                               input.selectAll()
-                             }
+              onReleased: mouse => {
+                            mouse.accepted = true
+                          }
+              onWheel: wheel => {
+                         wheel.accepted = true
+                       }
+            }
+          }
+          NIconButton {
+            id: clearButton
+            icon: "x"
+            tooltipText: I18n.tr("widgets.text-input.clear")
 
-            onReleased: mouse => {
-                          mouse.accepted = true
-                        }
-            onWheel: wheel => {
-                       wheel.accepted = true
-                     }
+            Layout.alignment: Qt.AlignVCenter
+
+            border.width: 0
+
+            colorBg: Color.transparent
+            colorBgHover: Color.transparent
+            colorFg: Color.mOnSurface
+            colorFgHover: Color.mError
+
+            visible: input.text.length > 0 && !root.readOnly
+            enabled: input.text.length > 0 && !root.readOnly
+
+            onClicked: {
+              input.clear()
+              input.forceActiveFocus()
+            }
           }
         }
       }

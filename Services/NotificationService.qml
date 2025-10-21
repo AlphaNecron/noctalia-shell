@@ -16,6 +16,10 @@ Singleton {
   property int maxVisible: 5
   property int maxHistory: 100
   property string historyFile: Quickshell.env("NOCTALIA_NOTIF_HISTORY_FILE") || (Settings.cacheDir + "notifications.json")
+  property string stateFile: Settings.cacheDir + "notifications-state.json"
+
+  // State
+  property real lastSeenTs: 0
 
   // Models
   property ListModel activeList: ListModel {}
@@ -111,7 +115,9 @@ Singleton {
     notificationMetadata[data.id] = {
       "timestamp": data.timestamp.getTime(),
       "duration": expire,
-      "urgency": data.urgency
+      "urgency": data.urgency,
+      "paused": false,
+      "pauseTime": 0
     }
 
     activeList.insert(0, data)
@@ -140,7 +146,7 @@ Singleton {
       "id": id,
       "summary": (n.summary || ""),
       "body": stripTags(n.body || ""),
-      "appName": getAppName(n.appName),
+      "appName": getAppName(n.appName || n.desktopEntry || ""),
       "urgency": n.urgency < 0 || n.urgency > 2 ? 1 : n.urgency,
       "expireTimeout": n.expireTimeout,
       "timestamp": time,
@@ -219,7 +225,7 @@ Singleton {
       const notif = activeList.get(i)
       const meta = notificationMetadata[notif.id]
 
-      if (!meta || meta.duration === -1)
+      if (!meta || meta.duration === -1 || meta.paused)
         continue
 
       // Skip infinite notifications
@@ -262,7 +268,7 @@ Singleton {
     saveHistory()
   }
 
-  // Persistence
+  // Persistence - History
   FileView {
     id: historyFileView
     path: historyFile
@@ -276,6 +282,23 @@ Singleton {
     JsonAdapter {
       id: adapter
       property var notifications: []
+    }
+  }
+
+  // Persistence - State (lastSeenTs, etc.)
+  FileView {
+    id: stateFileView
+    path: stateFile
+    printErrors: false
+    onLoaded: loadState()
+    onLoadFailed: error => {
+      if (error === 2)
+      writeAdapter()
+    }
+
+    JsonAdapter {
+      id: stateAdapter
+      property real lastSeenTs: 0
     }
   }
 
@@ -301,7 +324,7 @@ Singleton {
       adapter.notifications = items
       historyFileView.writeAdapter()
     } catch (e) {
-      Logger.error("Notifications", "Save history failed:", e)
+      Logger.e("Notifications", "Save history failed:", e)
     }
   }
 
@@ -331,8 +354,37 @@ Singleton {
                            })
       }
     } catch (e) {
-      Logger.error("Notifications", "Load failed:", e)
+      Logger.e("Notifications", "Load failed:", e)
     }
+  }
+
+  function loadState() {
+    try {
+      root.lastSeenTs = stateAdapter.lastSeenTs || 0
+
+      // Migration: if state file is empty but settings has lastSeenTs, migrate it
+      if (root.lastSeenTs === 0 && Settings.data.notifications && Settings.data.notifications.lastSeenTs) {
+        root.lastSeenTs = Settings.data.notifications.lastSeenTs
+        saveState()
+        Logger.i("Notifications", "Migrated lastSeenTs from settings to state file")
+      }
+    } catch (e) {
+      Logger.e("Notifications", "Load state failed:", e)
+    }
+  }
+
+  function saveState() {
+    try {
+      stateAdapter.lastSeenTs = root.lastSeenTs
+      stateFileView.writeAdapter()
+    } catch (e) {
+      Logger.e("Notifications", "Save state failed:", e)
+    }
+  }
+
+  function updateLastSeenTs() {
+    root.lastSeenTs = Time.timestamp * 1000
+    saveState()
   }
 
   function getAppName(name) {
@@ -408,10 +460,33 @@ Singleton {
     return ""
   }
 
+  function pauseTimeout(id) {
+    const meta = notificationMetadata[id]
+    if (meta && !meta.paused) {
+      meta.paused = true
+      meta.pauseTime = Date.now()
+    }
+  }
+
+  function resumeTimeout(id) {
+    const meta = notificationMetadata[id]
+    if (meta && meta.paused) {
+      meta.timestamp += Date.now() - meta.pauseTime
+      meta.paused = false
+    }
+  }
+
   // Public API
   function dismissActiveNotification(id) {
     activeMap[id]?.dismiss()
     removeActive(id)
+  }
+
+  function dismissOldestActive() {
+    if (activeList.count > 0) {
+      const lastNotif = activeList.get(activeList.count - 1)
+      dismissActiveNotification(lastNotif.id)
+    }
   }
 
   function dismissAllActive() {
@@ -454,7 +529,7 @@ Singleton {
     try {
       Quickshell.execDetached(["sh", "-c", `rm -rf "${Settings.cacheDirImagesNotifications}"*`])
     } catch (e) {
-      Logger.error("Notifications", "Failed to clear cache directory:", e)
+      Logger.e("Notifications", "Failed to clear cache directory:", e)
     }
 
     historyList.clear()

@@ -38,12 +38,19 @@ Singleton {
     let allPlayers = Mpris.players.values
     let finalPlayers = []
     const genericBrowsers = ["firefox", "chromium", "chrome"]
+    const blacklist = (Settings.data.audio && Settings.data.audio.mprisBlacklist) ? Settings.data.audio.mprisBlacklist : []
 
     // Separate players into specific and generic lists
     let specificPlayers = []
     let genericPlayers = []
     for (var i = 0; i < allPlayers.length; i++) {
       const identity = String(allPlayers[i].identity || "").toLowerCase()
+      const match = blacklist.find(b => {
+                                     const s = String(b || "").toLowerCase()
+                                     return s && (identity.includes(s))
+                                   })
+      if (match)
+        continue
       if (genericBrowsers.some(b => identity.includes(b))) {
         genericPlayers.push(allPlayers[i])
       } else {
@@ -61,7 +68,8 @@ Singleton {
 
       if (title1) {
         for (var j = 0; j < genericPlayers.length; j++) {
-          if (matchedGenericIndices[j]) continue
+          if (matchedGenericIndices[j])
+            continue
           let genericPlayer = genericPlayers[j]
           let title2 = String(genericPlayer.trackTitle || "").trim()
 
@@ -71,27 +79,29 @@ Singleton {
 
             let scoreSpecific = (specificPlayer.trackArtUrl ? 1 : 0)
             let scoreGeneric = (genericPlayer.trackArtUrl ? 1 : 0)
-            if(scoreSpecific > scoreGeneric){ dataPlayer = specificPlayer }
+            if (scoreSpecific > scoreGeneric) {
+              dataPlayer = specificPlayer
+            }
 
             let virtualPlayer = {
-              identity: identityPlayer.identity,
-              desktopEntry: identityPlayer.desktopEntry,
-              trackTitle: dataPlayer.trackTitle,
-              trackArtist: dataPlayer.trackArtist,
-              trackAlbum: dataPlayer.trackAlbum,
-              trackArtUrl: dataPlayer.trackArtUrl,
-              length: dataPlayer.length || 0,
-              position: dataPlayer.position || 0,
-              playbackState: dataPlayer.playbackState,
-              isPlaying: dataPlayer.isPlaying || false,
-              canPlay: dataPlayer.canPlay || false,
-              canPause: dataPlayer.canPause || false,
-              canGoNext: dataPlayer.canGoNext || false,
-              canGoPrevious: dataPlayer.canGoPrevious || false,
-              canSeek: dataPlayer.canSeek || false,
-              canControl: dataPlayer.canControl || false,
-              _stateSource: dataPlayer,
-              _controlTarget: identityPlayer
+              "identity": identityPlayer.identity,
+              "desktopEntry": identityPlayer.desktopEntry,
+              "trackTitle": dataPlayer.trackTitle,
+              "trackArtist": dataPlayer.trackArtist,
+              "trackAlbum": dataPlayer.trackAlbum,
+              "trackArtUrl": dataPlayer.trackArtUrl,
+              "length": dataPlayer.length || 0,
+              "position": dataPlayer.position || 0,
+              "playbackState": dataPlayer.playbackState,
+              "isPlaying": dataPlayer.isPlaying || false,
+              "canPlay": dataPlayer.canPlay || false,
+              "canPause": dataPlayer.canPause || false,
+              "canGoNext": dataPlayer.canGoNext || false,
+              "canGoPrevious": dataPlayer.canGoPrevious || false,
+              "canSeek": dataPlayer.canSeek || false,
+              "canControl": dataPlayer.canControl || false,
+              "_stateSource": dataPlayer,
+              "_controlTarget": identityPlayer
             }
             finalPlayers.push(virtualPlayer)
             matchedGenericIndices[j] = true
@@ -126,14 +136,14 @@ Singleton {
   function findActivePlayer() {
     let availablePlayers = getAvailablePlayers()
     if (availablePlayers.length === 0) {
-      //Logger.log("Media", "No active player found")
+      //Logger.i("Media", "No active player found")
       return null
     }
 
     // Prioritize the actively playing player ---
     for (var i = 0; i < availablePlayers.length; i++) {
       if (availablePlayers[i] && availablePlayers[i].playbackState === MprisPlaybackState.Playing) {
-        Logger.log("Media", "Found actively playing player: " + availablePlayers[i].identity)
+        Logger.d("Media", "Found actively playing player: " + availablePlayers[i].identity)
         selectedPlayerIndex = i
         return availablePlayers[i]
       }
@@ -167,7 +177,7 @@ Singleton {
     if (newPlayer !== currentPlayer) {
       currentPlayer = newPlayer
       currentPosition = currentPlayer ? currentPlayer.position : 0
-      Logger.log("Media", "Switching player")
+      Logger.d("Media", "Switching player")
     }
   }
 
@@ -187,6 +197,13 @@ Singleton {
     let target = currentPlayer ? (currentPlayer._controlTarget || currentPlayer) : null
     if (target && target.canPlay) {
       target.play()
+    }
+  }
+
+  function stop() {
+    let target = currentPlayer ? (currentPlayer._controlTarget || currentPlayer) : null
+    if (target) {
+      target.stop()
     }
   }
 
@@ -283,7 +300,7 @@ Singleton {
   Connections {
     target: Mpris.players
     function onValuesChanged() {
-      Logger.log("Media", "Players changed")
+      Logger.d("Media", "Players changed")
       updateCurrentPlayer()
     }
   }

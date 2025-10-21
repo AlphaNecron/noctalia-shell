@@ -11,9 +11,7 @@ import qs.Modules.Bar.Extras
 Item {
   id: root
 
-  // Widget properties passed from Bar.qml
-  property var screen
-  property real scaling: 1.0
+  property ShellScreen screen
 
   // Widget properties passed from Bar.qml for per-instance settings
   property string widgetId: ""
@@ -47,14 +45,13 @@ Item {
   BarPill {
     id: pill
 
-    rightOpen: BarService.getPillDirection(root)
+    oppositeDirection: BarService.getPillDirection(root)
     icon: customIcon
     text: _dynamicText
-    compact: (Settings.data.bar.density === "compact")
+    density: Settings.data.bar.density
     autoHide: false
     forceOpen: _dynamicText !== ""
-    forceClose: false
-    disableOpen: true
+    forceClose: true
     tooltipText: {
       if (!hasExec) {
         return "Custom button, configure in settings."
@@ -114,7 +111,7 @@ Item {
   function onClicked() {
     if (leftClickExec) {
       Quickshell.execDetached(["sh", "-c", leftClickExec])
-      Logger.log("CustomButton", `Executing command: ${leftClickExec}`)
+      Logger.i("CustomButton", `Executing command: ${leftClickExec}`)
     } else if (!hasExec) {
       // No script was defined, open settings
       var settingsPanel = PanelService.getPanel("settingsPanel")
@@ -126,14 +123,14 @@ Item {
   function onRightClicked() {
     if (rightClickExec) {
       Quickshell.execDetached(["sh", "-c", rightClickExec])
-      Logger.log("CustomButton", `Executing command: ${rightClickExec}`)
+      Logger.i("CustomButton", `Executing command: ${rightClickExec}`)
     }
   }
 
   function onMiddleClicked() {
     if (middleClickExec) {
       Quickshell.execDetached(["sh", "-c", middleClickExec])
-      Logger.log("CustomButton", `Executing command: ${middleClickExec}`)
+      Logger.i("CustomButton", `Executing command: ${middleClickExec}`)
     }
   }
 }

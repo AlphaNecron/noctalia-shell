@@ -55,7 +55,7 @@ Singleton {
     try {
       powerProfiles.profile = p
     } catch (e) {
-      Logger.error("PowerProfileService", "Failed to set profile:", e)
+      Logger.e("PowerProfileService", "Failed to set profile:", e)
     }
   }
 
@@ -69,6 +69,12 @@ Singleton {
       setProfile(PowerProfile.Performance)
     else if (current === PowerProfile.PowerSaver)
       setProfile(PowerProfile.Balanced)
+  }
+
+  function isDefault() {
+    if (!available)
+      return true
+    return (profile === PowerProfile.Balanced)
   }
 
   Connections {

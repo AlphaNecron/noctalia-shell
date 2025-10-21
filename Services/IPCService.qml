@@ -43,6 +43,14 @@ Item {
     function clear() {
       NotificationService.clearHistory()
     }
+
+    function dismissOldest() {
+      NotificationService.dismissOldestActive()
+    }
+
+    function dismissAll() {
+      NotificationService.dismissAllActive()
+    }
   }
 
   IpcHandler {
@@ -69,9 +77,26 @@ Item {
 
   IpcHandler {
     target: "lockScreen"
-    function toggle() {
+
+    // New preferred method - lock the screen
+    function lock() {
       // Only lock if not already locked (prevents the red screen issue)
       // Note: No unlock via IPC for security reasons
+      if (!lockScreen.active) {
+        lockScreen.triggeredViaDeprecatedCall = false
+        lockScreen.active = true
+      }
+    }
+
+    // Deprecated: Use 'lockScreen lock' instead
+    function toggle() {
+      // Mark as triggered via deprecated call - warning will show in lock screen
+      lockScreen.triggeredViaDeprecatedCall = true
+
+      // Log deprecation warning for users checking logs
+      Logger.w("IPC", "The 'lockScreen toggle' IPC call is deprecated. Use 'lockScreen lock' instead.")
+
+      // Still functional for backward compatibility
       if (!lockScreen.active) {
         lockScreen.active = true
       }
@@ -112,10 +137,14 @@ Item {
     function muteOutput() {
       AudioService.setOutputMuted(!AudioService.muted)
     }
+    function increaseInput() {
+      AudioService.increaseInputVolume()
+    }
+    function decreaseInput() {
+      AudioService.decreaseInputVolume()
+    }
     function muteInput() {
-      if (AudioService.source?.ready && AudioService.source?.audio) {
-        AudioService.source.audio.muted = !AudioService.source.audio.muted
-      }
+      AudioService.setInputMuted(!AudioService.inputMuted)
     }
   }
 
@@ -123,6 +152,10 @@ Item {
     target: "sessionMenu"
     function toggle() {
       sessionMenuPanel.toggle()
+    }
+
+    function lockAndSuspend() {
+      CompositorService.lockAndSuspend()
     }
   }
 
@@ -168,6 +201,28 @@ Item {
   }
 
   IpcHandler {
+    target: "batteryManager"
+
+    function cycle() {
+      BatteryService.cycleModes()
+    }
+
+    function set(mode: string) {
+      switch (mode) {
+      case "full":
+        BatteryService.setChargingMode(BatteryService.ChargingMode.Full)
+        break
+      case "balanced":
+        BatteryService.setChargingMode(BatteryService.ChargingMode.Balanced)
+        break
+      case "lifespan":
+        BatteryService.setChargingMode(BatteryService.ChargingMode.Lifespan)
+        break
+      }
+    }
+  }
+
+  IpcHandler {
     target: "media"
     function playPause() {
       MediaService.playPause()
@@ -175,6 +230,10 @@ Item {
 
     function play() {
       MediaService.play()
+    }
+
+    function stop() {
+      MediaService.stop()
     }
 
     function pause() {
@@ -192,7 +251,7 @@ Item {
     function seekRelative(offset: string) {
       var offsetVal = parseFloat(position)
       if (Number.isNaN(offsetVal)) {
-        Logger.warn("Media", "Argument to ipc call 'media seekRelative' must be a number")
+        Logger.w("Media", "Argument to ipc call 'media seekRelative' must be a number")
         return
       }
       MediaService.seekRelative(offsetVal)
@@ -201,7 +260,7 @@ Item {
     function seekByRatio(position: string) {
       var positionVal = parseFloat(position)
       if (Number.isNaN(positionVal)) {
-        Logger.warn("Media", "Argument to ipc call 'media seekByRatio' must be a number")
+        Logger.w("Media", "Argument to ipc call 'media seekByRatio' must be a number")
         return
       }
       MediaService.seekByRatio(positionVal)

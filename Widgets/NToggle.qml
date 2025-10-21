@@ -9,15 +9,17 @@ RowLayout {
 
   property string label: ""
   property string description: ""
+  property bool enabled: true
   property bool checked: false
   property bool hovering: false
-  property int baseSize: Math.round(Style.baseWidgetSize * 0.8)
+  property int baseSize: Math.round(Style.baseWidgetSize * 0.8 * Style.uiScaleRatio)
 
   signal toggled(bool checked)
   signal entered
   signal exited
 
   Layout.fillWidth: true
+  opacity: enabled ? 1.0 : 0.6
 
   NLabel {
     label: root.label
@@ -27,12 +29,12 @@ RowLayout {
   Rectangle {
     id: switcher
 
-    implicitWidth: Math.round(root.baseSize * .85 * scaling) * 2
-    implicitHeight: Math.round(root.baseSize * scaling * .5) * 2
+    implicitWidth: Math.round(root.baseSize * .85) * 2
+    implicitHeight: Math.round(root.baseSize * .5) * 2
     radius: height * 0.5
     color: root.checked ? Color.mPrimary : Color.mSurface
     border.color: Color.mOutline
-    border.width: Math.max(1, Style.borderS * scaling)
+    border.width: Math.max(1, Style.borderS)
 
     Behavior on color {
       ColorAnimation {
@@ -48,15 +50,15 @@ RowLayout {
 
     Rectangle {
 
-      implicitWidth: Math.round(root.baseSize * 0.4 * scaling) * 2
-      implicitHeight: Math.round(root.baseSize * 0.4 * scaling) * 2
+      implicitWidth: Math.round(root.baseSize * 0.4) * 2
+      implicitHeight: Math.round(root.baseSize * 0.4) * 2
       radius: height * 0.5
       color: root.checked ? Color.mOnPrimary : Color.mPrimary
       border.color: root.checked ? Color.mSurface : Color.mSurface
-      border.width: Math.max(1, Style.borderM * scaling)
+      border.width: Math.max(1, Style.borderM)
       anchors.verticalCenter: parent.verticalCenter
       anchors.verticalCenterOffset: 0
-      x: root.checked ? switcher.width - width - 3 * scaling : 3 * scaling
+      x: root.checked ? switcher.width - width - 3 : 3
 
       Behavior on x {
         NumberAnimation {
@@ -71,14 +73,20 @@ RowLayout {
       cursorShape: Qt.PointingHandCursor
       hoverEnabled: true
       onEntered: {
+        if (!enabled)
+          return
         hovering = true
         root.entered()
       }
       onExited: {
+        if (!enabled)
+          return
         hovering = false
         root.exited()
       }
       onClicked: {
+        if (!enabled)
+          return
         root.toggled(!root.checked)
       }
     }

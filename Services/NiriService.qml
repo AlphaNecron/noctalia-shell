@@ -20,13 +20,15 @@ Item {
   signal workspaceChanged
   signal activeWindowChanged
   signal windowListChanged
+  signal displayScalesChanged
 
   // Initialization
   function initialize() {
     niriEventStream.running = true
     updateWorkspaces()
     updateWindows()
-    Logger.log("NiriService", "Initialized successfully")
+    queryDisplayScales()
+    Logger.i("NiriService", "Initialized successfully")
   }
 
   // Update workspaces
@@ -37,6 +39,60 @@ Item {
   // Update windows
   function updateWindows() {
     niriWindowsProcess.running = true
+  }
+
+  // Query display scales
+  function queryDisplayScales() {
+    niriOutputsProcess.running = true
+  }
+
+  // Niri outputs process for display scale detection
+  Process {
+    id: niriOutputsProcess
+    running: false
+    command: ["niri", "msg", "--json", "outputs"]
+
+    stdout: SplitParser {
+      onRead: function (line) {
+        try {
+          const outputsData = JSON.parse(line)
+          const scales = {}
+
+          // Niri returns an object with display names as keys
+          for (const outputName in outputsData) {
+            const output = outputsData[outputName]
+            if (output && output.name) {
+              const logical = output.logical || {}
+              const currentModeIdx = output.current_mode || 0
+              const modes = output.modes || []
+              const currentMode = modes[currentModeIdx] || {}
+
+              scales[output.name] = {
+                "name": output.name,
+                "scale": logical.scale || 1.0,
+                "width": logical.width || 0,
+                "height": logical.height || 0,
+                "x": logical.x || 0,
+                "y": logical.y || 0,
+                "physical_width": (output.physical_size && output.physical_size[0]) || 0,
+                "physical_height": (output.physical_size && output.physical_size[1]) || 0,
+                "refresh_rate": currentMode.refresh_rate || 0,
+                "vrr_supported": output.vrr_supported || false,
+                "vrr_enabled": output.vrr_enabled || false,
+                "transform": logical.transform || "Normal"
+              }
+            }
+          }
+
+          // Notify CompositorService (it will emit displayScalesChanged)
+          if (CompositorService && CompositorService.onDisplayScalesUpdated) {
+            CompositorService.onDisplayScalesUpdated(scales)
+          }
+        } catch (e) {
+          Logger.e("NiriService", "Failed to parse outputs:", e, line)
+        }
+      }
+    }
   }
 
   // Niri workspace process
@@ -80,13 +136,13 @@ Item {
 
           workspaceChanged()
         } catch (e) {
-          Logger.error("NiriService", "Failed to parse workspaces:", e, line)
+          Logger.e("NiriService", "Failed to parse workspaces:", e, line)
         }
       }
     }
   }
 
-  // Niri windows process (for initial load)
+  // Niri windows process
   Process {
     id: niriWindowsProcess
     running: false
@@ -98,7 +154,7 @@ Item {
           const windowsData = JSON.parse(line)
           recollectWindows(windowsData)
         } catch (e) {
-          Logger.error("NiriService", "Failed to parse windows:", e, line)
+          Logger.e("NiriService", "Failed to parse windows:", e, line)
         }
       }
     }
@@ -131,9 +187,13 @@ Item {
                     handleWindowLayoutsChanged(event.WindowLayoutsChanged)
                   } else if (event.OverviewOpenedOrClosed) {
                     handleOverviewOpenedOrClosed(event.OverviewOpenedOrClosed)
+                  } else if (event.OutputsChanged) {
+                    queryDisplayScales()
+                  } else if (event.ConfigLoaded) {
+                    queryDisplayScales()
                   }
                 } catch (e) {
-                  Logger.error("NiriService", "Error parsing event stream:", e, data)
+                  Logger.e("NiriService", "Error parsing event stream:", e, data)
                 }
               }
     }
@@ -240,7 +300,7 @@ Item {
 
       windowListChanged()
     } catch (e) {
-      Logger.error("NiriService", "Error handling WindowOpenedOrChanged:", e)
+      Logger.e("NiriService", "Error handling WindowOpenedOrChanged:", e)
     }
   }
 
@@ -264,7 +324,7 @@ Item {
         windowListChanged()
       }
     } catch (e) {
-      Logger.error("NiriService", "Error handling WindowClosed:", e)
+      Logger.e("NiriService", "Error handling WindowClosed:", e)
     }
   }
 
@@ -273,7 +333,7 @@ Item {
       const windowsData = eventData.windows
       recollectWindows(windowsData)
     } catch (e) {
-      Logger.error("NiriService", "Error handling WindowsChanged:", e)
+      Logger.e("NiriService", "Error handling WindowsChanged:", e)
     }
   }
 
@@ -299,7 +359,7 @@ Item {
 
       activeWindowChanged()
     } catch (e) {
-      Logger.error("NiriService", "Error handling WindowFocusChanged:", e)
+      Logger.e("NiriService", "Error handling WindowFocusChanged:", e)
     }
   }
 
@@ -318,16 +378,16 @@ Item {
 
       windowListChanged()
     } catch (e) {
-      Logger.error("NiriService", "Error handling WindowLayoutChanged:", e)
+      Logger.e("NiriService", "Error handling WindowLayoutChanged:", e)
     }
   }
 
   function handleOverviewOpenedOrClosed(eventData) {
     try {
       overviewActive = eventData.is_open
-      Logger.log("NiriService", "Overview opened or closed:", eventData.is_open)
+      Logger.d("NiriService", "Overview opened or closed:", eventData.is_open)
     } catch (e) {
-      Logger.error("NiriService", "Error handling OverviewOpenedOrClosed:", e)
+      Logger.e("NiriService", "Error handling OverviewOpenedOrClosed:", e)
     }
   }
 
@@ -336,7 +396,7 @@ Item {
     try {
       Quickshell.execDetached(["niri", "msg", "action", "focus-workspace", workspace.idx.toString()])
     } catch (e) {
-      Logger.error("NiriService", "Failed to switch workspace:", e)
+      Logger.e("NiriService", "Failed to switch workspace:", e)
     }
   }
 
@@ -344,7 +404,7 @@ Item {
     try {
       Quickshell.execDetached(["niri", "msg", "action", "focus-window", "--id", window.id.toString()])
     } catch (e) {
-      Logger.error("NiriService", "Failed to switch window:", e)
+      Logger.e("NiriService", "Failed to switch window:", e)
     }
   }
 
@@ -352,7 +412,7 @@ Item {
     try {
       Quickshell.execDetached(["niri", "msg", "action", "close-window", "--id", window.id.toString()])
     } catch (e) {
-      Logger.error("NiriService", "Failed to close window:", e)
+      Logger.e("NiriService", "Failed to close window:", e)
     }
   }
 
@@ -360,7 +420,7 @@ Item {
     try {
       Quickshell.execDetached(["niri", "msg", "action", "quit", "--skip-confirmation"])
     } catch (e) {
-      Logger.error("NiriService", "Failed to logout:", e)
+      Logger.e("NiriService", "Failed to logout:", e)
     }
   }
 }

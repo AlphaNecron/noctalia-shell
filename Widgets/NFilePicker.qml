@@ -13,13 +13,13 @@ Popup {
   id: root
 
   // Properties
-  property string title: "File Picker"
+  property string title: I18n.tr("widget.file-picker.title")
   property string initialPath: Quickshell.env("HOME") || "/home"
   property string selectionMode: "files" // "files" or "folders"
   property var nameFilters: ["*"]
   property bool showDirs: true
   property bool showHiddenFiles: false
-  property real scaling: 1.0
+
   property var selectedPaths: []
   property string currentPath: initialPath
   property bool shouldResetSelection: false
@@ -137,23 +137,23 @@ Popup {
     }
   }
 
-  width: 900 * scaling
-  height: 700 * scaling
+  width: 900
+  height: 700
   modal: true
   closePolicy: Popup.CloseOnEscape
   anchors.centerIn: Overlay.overlay
 
   background: Rectangle {
     color: Color.mSurfaceVariant
-    radius: Style.radiusL * scaling
+    radius: Style.radiusL
     border.color: Color.mOutline
-    border.width: Math.max(1, Style.borderS * scaling)
+    border.width: Math.max(1, Style.borderS)
   }
 
   Rectangle {
     id: filePickerPanel
     anchors.fill: parent
-    anchors.margins: Style.marginL * scaling
+    anchors.margins: Style.marginL
     color: Color.transparent
 
     property string filterText: ""
@@ -181,21 +181,21 @@ Popup {
 
     ColumnLayout {
       anchors.fill: parent
-      spacing: Style.marginM * scaling
+      spacing: Style.marginM
 
       // Header
       RowLayout {
         Layout.fillWidth: true
-        spacing: Style.marginM * scaling
+        spacing: Style.marginM
 
         NIcon {
           icon: "filepicker-folder"
           color: Color.mPrimary
-          pointSize: Style.fontSizeXXL * scaling
+          pointSize: Style.fontSizeXXL
         }
         NText {
           text: root.title
-          pointSize: Style.fontSizeXL * scaling
+          pointSize: Style.fontSizeXL
           font.weight: Style.fontWeightBold
           color: Color.mPrimary
           Layout.fillWidth: true
@@ -203,7 +203,7 @@ Popup {
 
         // "Select Current" button only visible in folder selection mode
         NButton {
-          text: "Select Current"
+          text: I18n.tr("widgets.file-picker.select-current")
           icon: "filepicker-folder-current"
           visible: root.selectionMode === "folders"
           onClicked: {
@@ -214,7 +214,7 @@ Popup {
 
         NIconButton {
           icon: "filepicker-refresh"
-          tooltipText: "Refresh"
+          tooltipText: I18n.tr("tooltips.refresh")
           onClicked: {
             // Force a proper refresh by resetting the folder
             const currentFolder = folderModel.folder
@@ -225,7 +225,7 @@ Popup {
         }
         NIconButton {
           icon: "filepicker-close"
-          tooltipText: "Close"
+          tooltipText: I18n.tr("tooltips.close")
           onClicked: {
             root.cancelled()
             root.close()
@@ -240,23 +240,23 @@ Popup {
       // Navigation toolbar
       Rectangle {
         Layout.fillWidth: true
-        Layout.preferredHeight: 45 * scaling
+        Layout.preferredHeight: 45
         color: Color.mSurfaceVariant
-        radius: Style.radiusS * scaling
+        radius: Style.radiusS
         border.color: Color.mOutline
-        border.width: Math.max(1, Style.borderS * scaling)
+        border.width: Math.max(1, Style.borderS)
 
         RowLayout {
           anchors.left: parent.left
           anchors.right: parent.right
           anchors.verticalCenter: parent.verticalCenter
-          anchors.leftMargin: Style.marginS * scaling
-          anchors.rightMargin: Style.marginS * scaling
-          spacing: Style.marginS * scaling
+          anchors.leftMargin: Style.marginS
+          anchors.rightMargin: Style.marginS
+          spacing: Style.marginS
 
           NIconButton {
             icon: "filepicker-arrow-up"
-            tooltipText: "Up"
+            tooltipText: I18n.tr("tooltips.up")
             baseSize: Style.baseWidgetSize * 0.8
             enabled: folderModel.folder.toString() !== "file:///"
             onClicked: {
@@ -268,7 +268,7 @@ Popup {
 
           NIconButton {
             icon: "filepicker-home"
-            tooltipText: "Home"
+            tooltipText: I18n.tr("tooltips.home")
             baseSize: Style.baseWidgetSize * 0.8
             onClicked: {
               const homePath = Quickshell.env("HOME") || "/home"
@@ -296,6 +296,10 @@ Popup {
             text: root.currentPath
             placeholderText: "Enter path..."
             Layout.fillWidth: true
+
+            visible: !filePickerPanel.showSearchBar
+            enabled: !filePickerPanel.showSearchBar
+
             onEditingFinished: {
               const newPath = text.trim()
               if (newPath !== "" && newPath !== root.currentPath) {
@@ -311,6 +315,30 @@ Popup {
                 if (!locationInput.activeFocus)
                   locationInput.text = root.currentPath
               }
+            }
+          }
+
+          // Search bar
+          NTextInput {
+            id: searchInput
+            inputIconName: "search"
+            placeholderText: I18n.tr("placeholders.search")
+            Layout.fillWidth: true
+
+            visible: filePickerPanel.showSearchBar
+            enabled: filePickerPanel.showSearchBar
+
+            text: filePickerPanel.searchText
+            onTextChanged: {
+              filePickerPanel.searchText = text
+              filePickerPanel.filterText = text
+              root.updateFilteredModel()
+            }
+            Keys.onEscapePressed: {
+              filePickerPanel.showSearchBar = false
+              filePickerPanel.searchText = ""
+              filePickerPanel.filterText = ""
+              root.updateFilteredModel()
             }
           }
 
@@ -336,69 +364,14 @@ Popup {
         }
       }
 
-      // Search bar
-      Rectangle {
-        Layout.fillWidth: true
-        Layout.preferredHeight: 45 * scaling
-        color: Color.mSurfaceVariant
-        radius: Style.radiusS * scaling
-        border.color: Color.mOutline
-        border.width: Math.max(1, Style.borderS * scaling)
-        visible: filePickerPanel.showSearchBar
-
-        RowLayout {
-          anchors.left: parent.left
-          anchors.right: parent.right
-          anchors.verticalCenter: parent.verticalCenter
-          anchors.leftMargin: Style.marginS * scaling
-          anchors.rightMargin: Style.marginS * scaling
-          spacing: Style.marginS * scaling
-
-          NIcon {
-            icon: "filepicker-search"
-            color: Color.mOnSurfaceVariant
-            pointSize: Style.fontSizeS * scaling
-          }
-          NTextInput {
-            id: searchInput
-            placeholderText: "Search files and folders..."
-            Layout.fillWidth: true
-            text: filePickerPanel.searchText
-            onTextChanged: {
-              filePickerPanel.searchText = text
-              filePickerPanel.filterText = text
-              root.updateFilteredModel()
-            }
-            Keys.onEscapePressed: {
-              filePickerPanel.showSearchBar = false
-              filePickerPanel.searchText = ""
-              filePickerPanel.filterText = ""
-              root.updateFilteredModel()
-            }
-          }
-          NIconButton {
-            icon: "filepicker-x"
-            tooltipText: "Clear"
-            baseSize: Style.baseWidgetSize * 0.6
-            visible: filePickerPanel.searchText.length > 0
-            onClicked: {
-              searchInput.text = ""
-              filePickerPanel.searchText = ""
-              filePickerPanel.filterText = ""
-              root.updateFilteredModel()
-            }
-          }
-        }
-      }
-
       // File list area
       Rectangle {
         Layout.fillWidth: true
         Layout.fillHeight: true
         color: Color.mSurface
-        radius: Style.radiusM * scaling
+        radius: Style.radiusM
         border.color: Color.mOutline
-        border.width: Math.max(1, Style.borderS * scaling)
+        border.width: Math.max(1, Style.borderS)
 
         FolderListModel {
           id: folderModel
@@ -447,9 +420,9 @@ Popup {
           ScrollBar {
             policy: ScrollBar.AsNeeded
             contentItem: Rectangle {
-              implicitWidth: 6 * scaling
+              implicitWidth: 6
               implicitHeight: 100
-              radius: Style.radiusM * scaling
+              radius: Style.radiusM
               color: parent.pressed ? Qt.alpha(Color.mTertiary, 0.8) : parent.hovered ? Qt.alpha(Color.mTertiary, 0.8) : Qt.alpha(Color.mTertiary, 0.8)
               opacity: parent.policy === ScrollBar.AlwaysOn || parent.active ? 1.0 : 0.0
               Behavior on opacity {
@@ -464,11 +437,11 @@ Popup {
               }
             }
             background: Rectangle {
-              implicitWidth: 6 * scaling
+              implicitWidth: 6
               implicitHeight: 100
               color: Color.transparent
               opacity: parent.policy === ScrollBar.AlwaysOn || parent.active ? 0.3 : 0.0
-              radius: (Style.radiusM * scaling) / 2
+              radius: (Style.radiusM) / 2
               Behavior on opacity {
                 NumberAnimation {
                   duration: Style.animationFast
@@ -482,22 +455,22 @@ Popup {
         GridView {
           id: gridView
           anchors.fill: parent
-          anchors.margins: Style.marginM * scaling
+          anchors.margins: Style.marginM
           model: filteredModel
           visible: filePickerPanel.viewMode
           clip: true
           reuseItems: true
 
-          property int columns: Math.max(1, Math.floor(width / (120 * scaling)))
-          property int itemSize: Math.floor((width - leftMargin - rightMargin - (columns * Style.marginS * scaling)) / columns)
+          property int columns: Math.max(1, Math.floor(width / (120)))
+          property int itemSize: Math.floor((width - leftMargin - rightMargin - (columns * Style.marginS)) / columns)
 
           cellWidth: Math.floor((width - leftMargin - rightMargin) / columns)
-          cellHeight: Math.floor(itemSize * 0.8) + Style.marginXS * scaling + Style.fontSizeS * scaling + Style.marginM * scaling
+          cellHeight: Math.floor(itemSize * 0.8) + Style.marginXS + Style.fontSizeS + Style.marginM
 
-          leftMargin: Style.marginS * scaling
-          rightMargin: Style.marginS * scaling
-          topMargin: Style.marginS * scaling
-          bottomMargin: Style.marginS * scaling
+          leftMargin: Style.marginS
+          rightMargin: Style.marginS
+          topMargin: Style.marginS
+          bottomMargin: Style.marginS
 
           ScrollBar.vertical: scrollBarComponent.createObject(gridView, {
                                                                 "parent": gridView,
@@ -511,7 +484,7 @@ Popup {
             width: gridView.itemSize
             height: gridView.cellHeight
             color: Color.transparent
-            radius: Style.radiusM * scaling
+            radius: Style.radiusM
 
             property bool isSelected: filePickerPanel.currentSelection.includes(model.filePath)
 
@@ -520,7 +493,7 @@ Popup {
               color: Color.transparent
               radius: parent.radius
               border.color: isSelected ? Color.mSecondary : Color.mSurface
-              border.width: Math.max(1, Style.borderL * scaling)
+              border.width: Math.max(1, Style.borderL)
               Behavior on color {
                 ColorAnimation {
                   duration: Style.animationFast
@@ -533,7 +506,7 @@ Popup {
               color: (mouseArea.containsMouse && !isSelected) ? Color.mTertiary : Color.transparent
               radius: parent.radius
               border.color: (mouseArea.containsMouse && !isSelected) ? Color.mTertiary : Color.transparent
-              border.width: Math.max(1, Style.borderS * scaling)
+              border.width: Math.max(1, Style.borderS)
               Behavior on color {
                 ColorAnimation {
                   duration: Style.animationFast
@@ -548,8 +521,8 @@ Popup {
 
             ColumnLayout {
               anchors.fill: parent
-              anchors.margins: Style.marginS * scaling
-              spacing: Style.marginXS * scaling
+              anchors.margins: Style.marginS
+              spacing: Style.marginXS
 
               Rectangle {
                 id: iconContainer
@@ -567,15 +540,15 @@ Popup {
                 Image {
                   id: thumbnail
                   anchors.fill: parent
-                  anchors.margins: Style.marginXS * scaling
+                  anchors.margins: Style.marginXS
                   source: iconContainer.isImage ? "file://" + model.filePath : ""
                   fillMode: Image.PreserveAspectFit
                   visible: iconContainer.isImage && status === Image.Ready
                   smooth: false
                   cache: true
                   asynchronous: true
-                  sourceSize.width: 120 * scaling
-                  sourceSize.height: 120 * scaling
+                  sourceSize.width: 120
+                  sourceSize.height: 120
                   onStatusChanged: {
                     if (status === Image.Error)
                       visible = false
@@ -584,11 +557,11 @@ Popup {
                   Rectangle {
                     anchors.fill: parent
                     color: Color.mSurfaceVariant
-                    radius: Style.radiusS * scaling
+                    radius: Style.radiusS
                     visible: thumbnail.status === Image.Loading
                     NIcon {
                       icon: "filepicker-photo"
-                      pointSize: Style.fontSizeL * scaling
+                      pointSize: Style.fontSizeL
                       color: Color.mOnSurfaceVariant
                       anchors.centerIn: parent
                     }
@@ -597,7 +570,7 @@ Popup {
 
                 NIcon {
                   icon: model.fileIsDir ? "filepicker-folder" : root.getFileIcon(model.fileName)
-                  pointSize: Style.fontSizeXXL * 2 * scaling
+                  pointSize: Style.fontSizeXXL * 2
                   color: {
                     if (isSelected)
                       return Color.mSecondary
@@ -613,18 +586,17 @@ Popup {
                 Rectangle {
                   anchors.top: parent.top
                   anchors.right: parent.right
-                  anchors.margins: Style.marginS * scaling
-                  width: 24 * scaling
-                  height: 24 * scaling
+                  anchors.margins: Style.marginS
+                  width: 24
+                  height: 24
                   radius: width / 2
                   color: Color.mSecondary
                   border.color: Color.mOutline
-                  border.width: Math.max(1, Style.borderS * scaling)
+                  border.width: Math.max(1, Style.borderS)
                   visible: isSelected
                   NIcon {
                     icon: "filepicker-check"
-                    pointSize: Style.fontSizeS * scaling
-                    font.weight: Style.fontWeightBold
+                    pointSize: Style.fontSizeS
                     color: Color.mOnSecondary
                     anchors.centerIn: parent
                   }
@@ -641,7 +613,7 @@ Popup {
                   else
                     return Color.mOnSurfaceVariant
                 }
-                pointSize: Style.fontSizeS * scaling
+                pointSize: Style.fontSizeS
                 font.weight: isSelected ? Style.fontWeightBold : Style.fontWeightRegular
                 Layout.fillWidth: true
                 horizontalAlignment: Text.AlignHCenter
@@ -697,14 +669,14 @@ Popup {
         NListView {
           id: listView
           anchors.fill: parent
-          anchors.margins: Style.marginS * scaling
+          anchors.margins: Style.marginS
           model: filteredModel
           visible: !filePickerPanel.viewMode
 
           delegate: Rectangle {
             id: listItem
             width: listView.width
-            height: 40 * scaling
+            height: 40
             color: {
               if (filePickerPanel.currentSelection.includes(model.filePath))
                 return Color.mSecondary
@@ -712,7 +684,7 @@ Popup {
                 return Color.mTertiary
               return Color.transparent
             }
-            radius: Style.radiusS * scaling
+            radius: Style.radiusS
             Behavior on color {
               ColorAnimation {
                 duration: Style.animationFast
@@ -721,20 +693,20 @@ Popup {
 
             RowLayout {
               anchors.fill: parent
-              anchors.leftMargin: Style.marginM * scaling
-              anchors.rightMargin: Style.marginM * scaling
-              spacing: Style.marginM * scaling
+              anchors.leftMargin: Style.marginM
+              anchors.rightMargin: Style.marginM
+              spacing: Style.marginM
 
               NIcon {
                 icon: model.fileIsDir ? "filepicker-folder" : root.getFileIcon(model.fileName)
-                pointSize: Style.fontSizeL * scaling
+                pointSize: Style.fontSizeL
                 color: model.fileIsDir ? (filePickerPanel.currentSelection.includes(model.filePath) ? Color.mOnSecondary : Color.mPrimary) : Color.mOnSurfaceVariant
               }
 
               NText {
                 text: model.fileName
                 color: filePickerPanel.currentSelection.includes(model.filePath) ? Color.mOnSecondary : Color.mOnSurface
-                pointSize: Style.fontSizeM * scaling
+                pointSize: Style.fontSizeM
                 font.weight: filePickerPanel.currentSelection.includes(model.filePath) ? Style.fontWeightBold : Style.fontWeightRegular
                 Layout.fillWidth: true
                 elide: Text.ElideRight
@@ -743,7 +715,7 @@ Popup {
               NText {
                 text: model.fileIsDir ? "" : root.formatFileSize(model.fileSize)
                 color: filePickerPanel.currentSelection.includes(model.filePath) ? Color.mOnSecondary : Color.mOnSurfaceVariant
-                pointSize: Style.fontSizeS * scaling
+                pointSize: Style.fontSizeS
                 visible: !model.fileIsDir
                 Layout.preferredWidth: implicitWidth
               }
@@ -795,7 +767,7 @@ Popup {
       // Footer
       RowLayout {
         Layout.fillWidth: true
-        spacing: Style.marginM * scaling
+        spacing: Style.marginM
 
         NText {
           text: {
@@ -809,12 +781,12 @@ Popup {
             }
           }
           color: filePickerPanel.searchText.length > 0 ? Color.mPrimary : Color.mOnSurfaceVariant
-          pointSize: Style.fontSizeS * scaling
+          pointSize: Style.fontSizeS
           Layout.fillWidth: true
         }
 
         NButton {
-          text: "Cancel"
+          text: I18n.tr("widgets.file-picker.cancel")
           outlined: true
           onClicked: {
             root.cancelled()
