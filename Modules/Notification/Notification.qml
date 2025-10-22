@@ -45,7 +45,7 @@ Variants {
       screen: modelData
 
       WlrLayershell.namespace: "noctalia-notifications"
-      WlrLayershell.layer: (Settings.data.notifications && Settings.data.notifications.alwaysOnTop) ? WlrLayer.Overlay : WlrLayer.Top
+      WlrLayershell.layer: (Settings.data.notifications && Settings.data.notifications.overlayLayer) ? WlrLayer.Overlay : WlrLayer.Top
 
       color: Color.transparent
 
@@ -186,7 +186,7 @@ Variants {
 
             radius: Style.radiusL
             border.color: Color.mOutline
-            border.width: Math.max(1, Style.borderS)
+            border.width: Style.borderS
             color: Color.mSurface
 
             // Optimized progress bar container

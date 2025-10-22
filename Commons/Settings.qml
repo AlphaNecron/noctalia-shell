@@ -202,6 +202,7 @@ Singleton {
       property bool useFahrenheit: false
       property bool use12hourFormat: false
       property bool showWeekNumberInCalendar: false
+      property bool showCalendarEvents: true
     }
 
     // screen recorder
@@ -312,7 +313,7 @@ Singleton {
       property bool doNotDisturb: false
       property list<string> monitors: []
       property string location: "top_right"
-      property bool alwaysOnTop: false
+      property bool overlayLayer: true
       property bool respectExpireTimeout: false
       property int lowUrgencyDuration: 3
       property int normalUrgencyDuration: 8
@@ -325,7 +326,7 @@ Singleton {
       property string location: "top_right"
       property list<string> monitors: []
       property int autoHideMs: 2000
-      property bool alwaysOnTop: false
+      property bool overlayLayer: true
     }
 
     // audio

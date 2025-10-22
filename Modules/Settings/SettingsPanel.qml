@@ -44,6 +44,7 @@ NPanel {
 
   property int requestedTab: SettingsPanel.Tab.General
   property int currentTabIndex: 0
+  property var requestedWidgetSettings: []
   property var tabsModel: []
   property var activeScrollView: null
 
@@ -220,6 +221,7 @@ NPanel {
 
     root.tabsModel = newTabs // Assign the generated list to the model
   }
+
   // When the panel opens, choose the appropriate tab
   onOpened: {
     updateTabsModel()
@@ -233,8 +235,20 @@ NPanel {
         }
       }
     }
+
     // Now that the UI is settled, set the current tab index.
     root.currentTabIndex = initialIndex
+  }
+
+  function openWidgetSettings(section, widgetIndex, widgetId, widgetData) {
+    settingsPanel.requestedWidgetSettings = {
+      "sectionId": section,
+      "widgetIndex": widgetIndex,
+      "widgetId": widgetId,
+      "widgetData": widgetData
+    }
+    settingsPanel.requestedTab = SettingsPanel.Tab.Bar
+    settingsPanel.open()
   }
 
   // Add scroll functions
@@ -362,7 +376,7 @@ NPanel {
           Layout.alignment: Qt.AlignTop
           color: Color.mSurfaceVariant
           border.color: Color.mOutline
-          border.width: Math.max(1, Style.borderS)
+          border.width: Style.borderS
           radius: Style.radiusM
 
           MouseArea {
@@ -464,7 +478,7 @@ NPanel {
           radius: Style.radiusM
           color: Color.mSurfaceVariant
           border.color: Color.mOutline
-          border.width: Math.max(1, Style.borderS)
+          border.width: Style.borderS
 
           ColumnLayout {
             id: contentLayout
