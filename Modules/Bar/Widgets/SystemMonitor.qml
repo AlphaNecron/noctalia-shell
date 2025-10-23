@@ -329,7 +329,7 @@ Rectangle {
         }
 
         NText {
-          text: `${SystemStatService.diskPercent}%`
+          text: `${SystemStatService.diskPercents["/"]}%`
           family: Settings.data.ui.fontFixed
           pointSize: textSize
           applyUiScale: false
@@ -351,8 +351,8 @@ Rectangle {
     anchors.fill: parent
     acceptedButtons: Qt.RightButton
     onClicked: {
-      var settingsPanel = PanelService.getPanel("settingsPanel")
-      settingsPanel.openWidgetSettings(root.section, root.sectionWidgetIndex, root.widgetId, root.widgetSettings)
+      var directPanel = PanelService.getPanel("directWidgetSettingsPanel")
+      directPanel.openWidgetSettings(root.section, root.sectionWidgetIndex, root.widgetId, root.widgetSettings)
     }
   }
 }
