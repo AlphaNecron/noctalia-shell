@@ -95,13 +95,13 @@ Item {
     opacity: revealed ? Style.opacityFull : Style.opacityNone
     color: Settings.data.bar.showCapsule ? Color.mSurfaceVariant : Color.transparent
 
-    readonly property int halfButtonSize: Math.round(buttonSize * 0.5)
+    readonly property int thirdButtonSize: Math.round(buttonSize * 0.33)
 
     // Radius logic for vertical expansion - rounded on the side that connects to icon
-    topLeftRadius: openUpward ? halfButtonSize : 0
-    bottomLeftRadius: openDownward ? halfButtonSize : 0
-    topRightRadius: openUpward ? halfButtonSize : 0
-    bottomRightRadius: openDownward ? halfButtonSize : 0
+    topLeftRadius: openUpward ? thirdButtonSize : 0
+    bottomLeftRadius: openDownward ? thirdButtonSize : 0
+    topRightRadius: openUpward ? thirdButtonSize : 0
+    bottomRightRadius: openDownward ? thirdButtonSize : 0
 
     anchors.horizontalCenter: parent.horizontalCenter
 

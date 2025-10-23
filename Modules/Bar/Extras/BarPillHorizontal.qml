@@ -84,12 +84,12 @@ Item {
     opacity: revealed ? Style.opacityFull : Style.opacityNone
     color: Settings.data.bar.showCapsule ? Color.mSurfaceVariant : Color.transparent
 
-    readonly property int halfPillHeight: Math.round(pillHeight * 0.5)
+    readonly property int thirdPillHeight: Math.round(pillHeight * 0.33)
 
-    topLeftRadius: oppositeDirection ? 0 : halfPillHeight
-    bottomLeftRadius: oppositeDirection ? 0 : halfPillHeight
-    topRightRadius: oppositeDirection ? halfPillHeight : 0
-    bottomRightRadius: oppositeDirection ? halfPillHeight : 0
+    topLeftRadius: oppositeDirection ? 0 : thirdPillHeight
+    bottomLeftRadius: oppositeDirection ? 0 : thirdPillHeight
+    topRightRadius: oppositeDirection ? thirdPillHeight : 0
+    bottomRightRadius: oppositeDirection ? thirdPillHeight : 0
     anchors.verticalCenter: parent.verticalCenter
 
     NText {
@@ -134,7 +134,7 @@ Item {
     id: iconCircle
     width: pillHeight
     height: pillHeight
-    radius: width * 0.5
+    radius: width * 0.33
     color: hovered ? Color.mTertiary : Settings.data.bar.showCapsule ? Color.mSurfaceVariant : Color.transparent
     anchors.verticalCenter: parent.verticalCenter
 
