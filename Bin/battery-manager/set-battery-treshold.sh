@@ -57,24 +57,9 @@ if ! [[ "$BATTERY_LEVEL" =~ ^[0-9]+$ ]] || [ "$BATTERY_LEVEL" -gt 100 ] || [ "$B
     exit 1
 fi
 
-CURRENT_USER="$USER"
-if [ -z "$CURRENT_USER" ]; then
-    CURRENT_USER="$(whoami)"
-fi
-
-BATTERY_MANAGER_PATH="/usr/bin/battery-manager-$CURRENT_USER"
-
-SUCCESS=0
-MISSING_FILES=2
-
-if [ ! -f "$BATTERY_MANAGER_PATH" ]; then
-    print_error "Battery manager components missing for user $CURRENT_USER!"
-    exit $MISSING_FILES
-fi
-
 print_info "Setting battery charging threshold to $BATTERY_LEVEL% for user $CURRENT_USER..."
 
-if pkexec "$BATTERY_MANAGER_PATH" "$BATTERY_LEVEL"; then
+if asusctl -c "$BATTERY_LEVEL"; then
     print_info "Battery charging threshold set to $BATTERY_LEVEL%"
     send_notification "normal" "Battery Threshold Updated" \
         "Battery charging threshold has been set to $BATTERY_LEVEL%"
