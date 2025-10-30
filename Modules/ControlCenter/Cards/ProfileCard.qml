@@ -6,6 +6,7 @@ import Quickshell.Io
 import Quickshell.Widgets
 import qs.Modules.Settings
 import qs.Modules.ControlCenter
+import qs.Modules.ControlCenter.Widgets
 import qs.Commons
 import qs.Services
 import qs.Widgets
@@ -56,6 +57,9 @@ NBox {
       Item {
         Layout.fillWidth: true
       }
+
+      KeepAwake {}
+
       NIconButton {
         icon: "settings"
         tooltipText: I18n.tr("tooltips.open-settings")
@@ -70,14 +74,6 @@ NBox {
         tooltipText: I18n.tr("tooltips.session-menu")
         onClicked: {
           sessionMenuPanel.open()
-          controlCenterPanel.close()
-        }
-      }
-
-      NIconButton {
-        icon: "close"
-        tooltipText: I18n.tr("tooltips.close")
-        onClicked: {
           controlCenterPanel.close()
         }
       }

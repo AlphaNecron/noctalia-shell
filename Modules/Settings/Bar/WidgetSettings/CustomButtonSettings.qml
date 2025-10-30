@@ -15,6 +15,7 @@ ColumnLayout {
 
   property string valueIcon: widgetData.icon !== undefined ? widgetData.icon : widgetMetadata.icon
   property bool valueTextStream: widgetData.textStream !== undefined ? widgetData.textStream : widgetMetadata.textStream
+  property bool valueParseJson: widgetData.parseJson !== undefined ? widgetData.parseJson : widgetMetadata.parseJson
 
   function saveSettings() {
     var settings = Object.assign({}, widgetData || {})
@@ -23,7 +24,9 @@ ColumnLayout {
     settings.rightClickExec = rightClickExecInput.text
     settings.middleClickExec = middleClickExecInput.text
     settings.textCommand = textCommandInput.text
+    settings.textCollapse = textCollapseInput.text
     settings.textStream = valueTextStream
+    settings.parseJson = valueParseJson
     settings.textIntervalMs = parseInt(textIntervalInput.text || textIntervalInput.placeholderText, 10)
     return settings
   }
@@ -100,6 +103,14 @@ ColumnLayout {
     onToggled: checked => valueTextStream = checked
   }
 
+  NToggle {
+    id: parseJsonInput
+    label: I18n.tr("bar.widget-settings.custom-button.parse-json.label", "Parse output as JSON")
+    description: I18n.tr("bar.widget-settings.custom-button.parse-json.description", "Parse the command output as a JSON object to dynamically set text and icon.")
+    checked: valueParseJson
+    onToggled: checked => valueParseJson = checked
+  }
+
   NTextInput {
     id: textCommandInput
     Layout.fillWidth: true
@@ -107,6 +118,16 @@ ColumnLayout {
     description: valueTextStream ? I18n.tr("bar.widget-settings.custom-button.display-command-output.stream-description") : I18n.tr("bar.widget-settings.custom-button.display-command-output.description")
     placeholderText: I18n.tr("placeholders.command-example")
     text: widgetData?.textCommand || widgetMetadata.textCommand
+  }
+
+  NTextInput {
+    id: textCollapseInput
+    Layout.fillWidth: true
+    visible: valueTextStream
+    label: I18n.tr("bar.widget-settings.custom-button.collapse-condition.label")
+    description: I18n.tr("bar.widget-settings.custom-button.collapse-condition.description")
+    placeholderText: I18n.tr("placeholders.enter-text-to-collapse")
+    text: widgetData?.textCollapse || widgetMetadata.textCollapse
   }
 
   NTextInput {

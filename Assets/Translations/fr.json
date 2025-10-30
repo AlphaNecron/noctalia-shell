@@ -162,6 +162,10 @@
         "brightness-step": {
           "label": "Incrément de luminosité",
           "description": "Ajustez l'incrément pour les changements de luminosité (molette de la souris et raccourcis clavier)."
+        },
+        "enforce-minimum": {
+          "label": "Imposer une luminosité minimale (1%)",
+          "description": "Résout le problème de l'extinction complète du rétroéclairage sur certains écrans à 0% de luminosité."
         }
       },
       "night-light": {
@@ -323,6 +327,14 @@
         "terminal-command": {
           "label": "Commande du terminal",
           "description": "Commande pour lancer un terminal. Ex: 'kitty -e' ou 'gnome-terminal --'."
+        },
+        "custom-launch-prefix": {
+          "label": "Préfixe de lancement personnalisé",
+          "description": "Préfixer les commandes avec un lanceur personnalisé (ex. 'runapp' pour l'intégration systemd)."
+        },
+        "custom-launch-prefix-enabled": {
+          "label": "Activer le préfixe de lancement personnalisé",
+          "description": "Utiliser un préfixe personnalisé pour lancer les applications au lieu de la méthode par défaut."
         }
       }
     },
@@ -348,6 +360,10 @@
         "always-on-top": {
           "label": "Toujours au premier plan",
           "description": "Afficher les notifications au-dessus des fenêtres en plein écran et des autres applications."
+        },
+        "background-opacity": {
+          "label": "Opacité du fond",
+          "description": "Ajuster l'opacité des arrière-plans de notifications."
         }
       },
       "duration": {
@@ -433,6 +449,10 @@
           "description": "Chemin vers votre dossier principal de fonds d'écran.",
           "tooltip": "Parcourir le dossier des fonds d'écran"
         },
+        "recursive-search": {
+          "label": "Rechercher dans les sous-dossiers",
+          "description": "Rechercher également des fonds d'écran dans les sous-dossiers du répertoire des fonds d'écran."
+        },
         "monitor-specific": {
           "label": "Dossiers spécifiques au moniteur",
           "description": "Définissez un dossier de fond d'écran différent pour chaque moniteur.",
@@ -497,7 +517,16 @@
         },
         "matugen-scheme-type": {
           "label": "Type de schéma Matugen",
-          "description": "Choisissez l'algorithme de génération de schéma de couleurs pour Matugen."
+          "description": {
+            "scheme-content": "Dérive des couleurs qui correspondent étroitement à l'image sous-jacente.",
+            "scheme-expressive": "Palette vibrante avec une saturation ludique.",
+            "scheme-fidelity": "Palette haute fidélité qui préserve les teintes sources.",
+            "scheme-fruit-salad": "Mélange coloré d'accents vifs et contrastés.",
+            "scheme-monochrome": "Palette minimaliste construite autour d'une seule teinte.",
+            "scheme-neutral": "Palette de couleurs atténuées aux tons doux et apaisants.",
+            "scheme-rainbow": "Palette diversifiée couvrant tout le spectre.",
+            "scheme-tonal-spot": "Palette équilibrée avec des accents ciblés."
+          }
         }
       },
       "dark-mode": {
@@ -564,6 +593,10 @@
             "description": "Écrire {filepath} et recharger",
             "description-missing": "Nécessite que le lanceur {app} soit installé"
           },
+          "walker": {
+            "description": "Écrire {filepath} et définir le thème sur noctalia",
+            "description-missing": "Nécessite que le lanceur {app} soit installé"
+          },
           "discord": {
             "description": "Écrire {filepath} pour {client}",
             "description-missing": "Aucun client Discord détecté. Installez vencord, vesktop, webcord, armcord, equibop, lightcord ou dorion."
@@ -621,7 +654,6 @@
         },
         "12hour-format": {
           "label": "Utiliser le format horaire de 12 heures",
-          "description": "Activé pour le format AM/PM (ex: 8:00 PM), désactivé pour le format 24 heures (ex: 20:00)."
         },
         "week-numbers": {
           "label": "Afficher les numéros de semaine",
@@ -630,6 +662,10 @@
         "show-events": {
           "label": "Afficher les événements du calendrier",
           "description": "Afficher les événements dans le panneau du calendrier."
+        },
+        "use-analog": {
+          "description": "Afficher une horloge de style analogique sur l'écran du calendrier.",
+          "label": "Utiliser une horloge de style analogique."
         }
       }
     },
@@ -1040,6 +1076,10 @@
         "hide-unoccupied": {
           "label": "Masquer les inoccupés",
           "description": "Ne pas afficher les espaces de travail sans fenêtres."
+        },
+        "character-count": {
+          "label": "Nombre de caractères",
+          "description": "Nombre de caractères à afficher des noms d'espaces de travail (1-10)."
         }
       },
       "microphone": {
@@ -1089,8 +1129,16 @@
           "description": "Intervalle en millisecondes."
         },
         "text-stream": {
-          "description": "Les lignes diffusées depuis la commande seront affichées sous forme de texte sur le bouton.",
-          "label": "Flux"
+          "label": "Flux",
+          "description": "Les lignes diffusées depuis la commande seront affichées sous forme de texte sur le bouton."
+        },
+        "collapse-condition": {
+          "label": "Condition d’effondrement",
+          "description": "Si le texte de sortie correspond à cette valeur, le bouton se repliera."
+        },
+        "parse-json": {
+          "label": "Analyser la sortie en JSON",
+          "description": "Analyser la sortie de la commande en tant qu'objet JSON pour définir dynamiquement le texte et l'icône."
         }
       },
       "media-mini": {
@@ -1179,6 +1227,16 @@
         "colorize-icons": {
           "label": "Coloriser les icônes",
           "description": "Appliquer les couleurs du thème aux icônes de la barre système."
+        }
+      },
+      "audio-visualizer": {
+        "width": {
+          "label": "Largeur",
+          "description": "Largeur personnalisée du composant."
+        },
+        "hide-when-idle": {
+          "label": "Masquer lorsqu'aucun média n'est en lecture",
+          "description": "Si activé, le visualiseur est masqué sauf lorsqu'un lecteur est en lecture."
         }
       }
     }
@@ -1302,6 +1360,7 @@
     "open-control-center": "Ouvrir le centre de contrôle",
     "volume-at": "Volume à {volume}%\nClic gauche pour couper/rétablir le son. Clic droit pour les paramètres.\nFaites défiler pour modifier le volume.",
     "microphone-volume-at": "Volume du microphone à {volume}%\nClic gauche pour couper/rétablir le son. Clic droit pour les paramètres.\nFaites défiler pour modifier le volume.",
+    "brightness-at": "Luminosité : {brightness}%\nClic droit pour les paramètres.\nFaites défiler pour modifier la luminosité.",
     "manage-wifi": "Gérer le Wi-Fi",
     "bluetooth-devices": "Appareils Bluetooth",
     "open-notification-history-enable-dnd": "Ouvrir l'historique des notifications\nClic droit pour activer \"Ne pas déranger\".",
@@ -1312,7 +1371,9 @@
     "play": "Lecture",
     "next-media": "Média suivant",
     "power-profile": "Profil d'alimentation '{profile}'",
-    "keyboard-layout": "Disposition du clavier {layout}"
+    "keyboard-layout": "Disposition du clavier {layout}",
+    "output-muted": "Couper la sortie audio",
+    "input-muted": "Couper l'entrée audio"
   },
   "clock": {
     "tooltip": "Ouvrir le calendrier"
@@ -1335,6 +1396,7 @@
     "enter-width-pixels": "Entrez la largeur en pixels",
     "enter-command": "Entrez la commande à exécuter (application ou script personnalisé)",
     "command-example": "echo \"Bonjour le monde\"",
+    "enter-text-to-collapse": "par ex., 'rien n’est en lecture'. Utilisez /regex/ pour les modèles.",
     "search-wallpapers": "Tapez pour filtrer les fonds d'écran...",
     "search-launcher": "Rechercher des entrées... ou utilisez > pour les commandes",
     "search": "Rechercher...",
@@ -1635,10 +1697,6 @@
     "power-profile": {
       "changed": "Profil d'alimentation changé",
       "profile-name": "\"{profile}\""
-    },
-    "audio": {
-      "muted": "Son coupé",
-      "unmuted": "Son rétabli"
     },
     "battery": {
       "low": "Batterie faible",

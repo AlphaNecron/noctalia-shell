@@ -38,12 +38,21 @@
 
     defaultPackage = eachSystem (system: self.packages.${system}.default);
 
+    devShells = eachSystem (
+      system: let
+        pkgs = nixpkgs.legacyPackages.${system};
+      in {
+        default = pkgs.callPackage ./shell.nix {};
+      }
+    );
+
     homeModules.default = {
       pkgs,
       lib,
       ...
     }: {
       imports = [./nix/home-module.nix];
+      programs.noctalia-shell.package = lib.mkDefault self.packages.${pkgs.system}.default;
       programs.noctalia-shell.app2unit.package =
         lib.mkDefault
         nixpkgs.legacyPackages.${pkgs.system}.app2unit;

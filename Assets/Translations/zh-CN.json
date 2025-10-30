@@ -162,6 +162,10 @@
         "brightness-step": {
           "label": "亮度步长",
           "description": "调整亮度变化的步长（滚轮和键盘快捷键）。"
+        },
+        "enforce-minimum": {
+          "label": "限制最小亮度为 1%",
+          "description": "解决亮度为 0% 时部分显示器背光完全关闭的问题。"
         }
       },
       "night-light": {
@@ -321,8 +325,16 @@
           "description": "使用替代启动方法以更好地管理应用程序进程并防止问题。"
         },
         "terminal-command": {
-          "description": "启动终端的命令。例如，“kitty -e”或“gnome-terminal --”。",
+          "description": "启动终端的命令。例如，'kitty -e'或'gnome-terminal --'。",
           "label": "终端命令"
+        },
+        "custom-launch-prefix": {
+          "label": "自定义启动前缀",
+          "description": "使用自定义启动器前缀命令（例如，'runapp'用于systemd集成）。"
+        },
+        "custom-launch-prefix-enabled": {
+          "label": "启用自定义启动前缀",
+          "description": "使用自定义前缀启动应用程序，而不是默认方法。"
         }
       }
     },
@@ -348,6 +360,10 @@
         "always-on-top": {
           "label": "始终置顶",
           "description": "在全屏窗口和其他图层上方显示通知。"
+        },
+        "background-opacity": {
+          "label": "背景透明度",
+          "description": "调整通知背景的透明度。"
         }
       },
       "duration": {
@@ -433,6 +449,10 @@
           "description": "您的主壁纸文件夹路径。",
           "tooltip": "浏览壁纸文件夹"
         },
+        "recursive-search": {
+          "label": "搜索子文件夹",
+          "description": "同时在壁纸目录的子文件夹中搜索壁纸。"
+        },
         "monitor-specific": {
           "label": "显示器特定目录",
           "description": "为每个显示器设置不同的壁纸文件夹。",
@@ -497,7 +517,16 @@
         },
         "matugen-scheme-type": {
           "label": "Matugen 配色方案类型",
-          "description": "为 Matugen 选择配色方案生成算法。"
+          "description": {
+            "scheme-content": "推导出与底层图像紧密匹配的颜色",
+            "scheme-expressive": "充满活力的调色板，色彩饱和度高",
+            "scheme-fidelity": "保留原始色调的高保真调色板",
+            "scheme-fruit-salad": "鲜艳对比色的缤纷组合",
+            "scheme-monochrome": "围绕单一色调构建的极简调色板",
+            "scheme-neutral": "柔和的色调，沉稳平静。",
+            "scheme-rainbow": "涵盖整个光谱的多元调色板",
+            "scheme-tonal-spot": "平衡的色调，重点突出"
+          }
         }
       },
       "dark-mode": {
@@ -564,6 +593,10 @@
             "description": "写入 {filepath} 并重新加载",
             "description-missing": "需要安装 {app}"
           },
+          "walker": {
+            "description": "写入 {filepath} 并将主题设置为 noctalia",
+            "description-missing": "需要安装 {app}"
+          },
           "discord": {
             "description": "为 {client} 写入 {filepath}",
             "description-missing": "未检测到 Discord 客户端。请安装 vencord、vesktop、webcord、armcord、equibop、lightcord 或 dorion。"
@@ -620,8 +653,8 @@
           "description": "自定义日期和时间的显示方式。"
         },
         "12hour-format": {
-          "description": "开启为 AM/PM 格式（例如：8:00 PM），关闭为 24 小时制（例如：20:00）。",
-          "label": "使用12小时制时间格式"
+          "label": "使用12小时制时间格式",
+          "description": "在锁屏和日历上以 12 小时制格式显示时间。状态栏时钟有其自己的设置。"
         },
         "week-numbers": {
           "label": "显示周数",
@@ -630,6 +663,10 @@
         "show-events": {
           "label": "显示日历事件",
           "description": "在日历面板中显示事件。"
+        },
+        "use-analog": {
+          "description": "在日历屏幕上显示一个模拟时钟。",
+          "label": "使用模拟时钟样式"
         }
       }
     },
@@ -1040,6 +1077,10 @@
         "hide-unoccupied": {
           "label": "隐藏未占用",
           "description": "不显示没有窗口的工作区。"
+        },
+        "character-count": {
+          "label": "字符数量",
+          "description": "显示工作区名称的字符数量（1-10）。"
         }
       },
       "microphone": {
@@ -1089,8 +1130,16 @@
           "description": "间隔时间（毫秒）。"
         },
         "text-stream": {
-          "description": "来自命令的流式输出行将作为文本显示在按钮上。",
-          "label": "流"
+          "label": "流",
+          "description": "来自命令的流式输出行将作为文本显示在按钮上。"
+        },
+        "collapse-condition": {
+          "label": "折叠条件",
+          "description": "如果输出文本与此值匹配，按钮将折叠。"
+        },
+        "parse-json": {
+          "label": "将输出解析为 JSON",
+          "description": "将命令输出解析为 JSON 对象，以动态设置文本和图标。"
         }
       },
       "media-mini": {
@@ -1179,6 +1228,16 @@
         "colorize-icons": {
           "label": "着色图标",
           "description": "将主题颜色应用到系统托盘图标。"
+        }
+      },
+      "audio-visualizer": {
+        "width": {
+          "label": "宽度",
+          "description": "自定义组件的宽度。"
+        },
+        "hide-when-idle": {
+          "label": "无媒体播放时隐藏",
+          "description": "启用后，除非正在播放媒体，否则隐藏可视化显示。"
         }
       }
     }
@@ -1302,6 +1361,7 @@
     "open-control-center": "打开控制中心",
     "volume-at": "音量 {volume}%\n左键点击切换静音。右键点击进入设置。\n滚动调整音量。",
     "microphone-volume-at": "麦克风音量 {volume}%\n左键点击切换静音。右键点击进入设置。\n滚动调整音量。",
+    "brightness-at": "亮度：{brightness}%\n右键点击进入设置。\n滚动调整亮度。",
     "manage-wifi": "管理 Wi-Fi",
     "bluetooth-devices": "蓝牙设备",
     "open-notification-history-enable-dnd": "打开通知历史记录\n右键点击启用\"勿扰模式\"。",
@@ -1312,7 +1372,9 @@
     "play": "播放",
     "next-media": "下一媒体",
     "power-profile": "'{profile}' 电源模式",
-    "keyboard-layout": "{layout} 键盘布局"
+    "keyboard-layout": "{layout} 键盘布局",
+    "output-muted": "静音输出设备",
+    "input-muted": "静音输入设备"
   },
   "clock": {
     "tooltip": "打开日历"
@@ -1335,6 +1397,7 @@
     "enter-width-pixels": "输入宽度（像素）",
     "enter-command": "输入要执行的命令（应用程序或自定义脚本）",
     "command-example": "echo \"Hello World\"",
+    "enter-text-to-collapse": "例如，“nothing is playing”。使用 /regex/ 表示匹配模式。",
     "search-wallpapers": "输入以筛选壁纸...",
     "search-launcher": "搜索条目...或使用 > 执行命令",
     "search": "搜索...",
@@ -1635,10 +1698,6 @@
     "power-profile": {
       "changed": "电源模式已更改",
       "profile-name": "\"{profile}\""
-    },
-    "audio": {
-      "muted": "已静音",
-      "unmuted": "已取消静音"
     },
     "battery": {
       "low": "电量低",

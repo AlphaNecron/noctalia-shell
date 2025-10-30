@@ -162,6 +162,10 @@
         "brightness-step": {
           "label": "Brightness step size",
           "description": "Adjust the step size for brightness changes (scroll wheel and keyboard shortcuts)."
+        },
+        "enforce-minimum": {
+          "label": "Enforce minimum brightness (1%)",
+          "description": "Solves the problem of backlight completely turning off on some displays at 0% brightness."
         }
       },
       "night-light": {
@@ -323,6 +327,14 @@
         "terminal-command": {
           "label": "Terminal command",
           "description": "Command to launch a terminal. E.g., 'kitty -e' or 'gnome-terminal --'."
+        },
+        "custom-launch-prefix": {
+          "label": "Custom launch prefix",
+          "description": "Prefix commands with a custom launcher (e.g., 'runapp' for systemd integration)."
+        },
+        "custom-launch-prefix-enabled": {
+          "label": "Enable custom launch prefix",
+          "description": "Use a custom prefix for launching applications instead of the default method."
         }
       }
     },
@@ -348,6 +360,10 @@
         "always-on-top": {
           "label": "Always on top",
           "description": "Display notifications above fullscreen windows and other layers."
+        },
+        "background-opacity": {
+          "label": "Background opacity",
+          "description": "Adjust the opacity of notification backgrounds."
         }
       },
       "duration": {
@@ -433,6 +449,10 @@
           "description": "Path to your main wallpaper folder.",
           "tooltip": "Browse for wallpaper folder"
         },
+        "recursive-search": {
+          "label": "Search subfolders",
+          "description": "Also search for wallpapers in subfolders of the wallpaper directory."
+        },
         "monitor-specific": {
           "label": "Monitor-specific directories",
           "description": "Set a different wallpaper folder for each monitor.",
@@ -497,7 +517,16 @@
         },
         "matugen-scheme-type": {
           "label": "Matugen scheme type",
-          "description": "Choose the color scheme generation algorithm for Matugen."
+          "description": {
+            "scheme-content": "Derives colors that closely match the underlying image",
+            "scheme-expressive": "Vibrant palette with playful saturation",
+            "scheme-fidelity": "High-fidelity palette that preserves source hues",
+            "scheme-fruit-salad": "Colorful mix of bright contrasting accents",
+            "scheme-monochrome": "Minimal palette built around a single hue",
+            "scheme-neutral": "Muted palette with subdued and calming tones",
+            "scheme-rainbow": "Diverse palette spanning the full spectrum",
+            "scheme-tonal-spot": "Balanced palette with focused accents"
+          }
         }
       },
       "dark-mode": {
@@ -568,6 +597,10 @@
             "description": "Write {filepath} and reload",
             "description-missing": "Requires {app} to be installed"
           },
+          "walker": {
+            "description": "Write {filepath} and set theme to noctalia",
+            "description-missing": "Requires {app} to be installed"
+          },
           "discord": {
             "description": "Write {filepath} for {client}",
             "description-missing": "No Discord client detected. Install vencord, vesktop, webcord, armcord, equibop, lightcord, or dorion."
@@ -621,7 +654,7 @@
         },
         "12hour-format": {
           "label": "Use 12-hour time format",
-          "description": "On for AM/PM format (e.g., 8:00 PM), off for 24-hour format (e.g., 20:00)."
+          "description": "Displays time in 12-hour format on the lock screen and calendar. The bar clock has its own settings."
         },
         "week-numbers": {
           "label": "Show week numbers",
@@ -630,6 +663,10 @@
         "show-events": {
           "label": "Show calendar events",
           "description": "Display events in the calendar panel."
+        },
+        "use-analog": {
+          "label": "Use analog style clock",
+          "description": "Show an analog style clock on the calendar screen."
         }
       }
     },
@@ -1040,6 +1077,10 @@
         "hide-unoccupied": {
           "label": "Hide unoccupied",
           "description": "Don't display workspaces without windows."
+        },
+        "character-count": {
+          "label": "Character count",
+          "description": "Number of characters to display from workspace names (1-10)."
         }
       },
       "microphone": {
@@ -1091,6 +1132,14 @@
         "refresh-interval": {
           "label": "Refresh interval",
           "description": "Interval in milliseconds."
+        },
+        "collapse-condition": {
+          "label": "Collapse condition",
+          "description": "If the output text matches this value, the button will collapse."
+        },
+        "parse-json": {
+          "label": "Parse output as JSON",
+          "description": "Parse the command output as a JSON object to dynamically set text and icon."
         }
       },
       "media-mini": {
@@ -1179,6 +1228,16 @@
         "colorize-icons": {
           "label": "Colorize Icons",
           "description": "Apply theme colors to tray icons."
+        }
+      },
+      "audio-visualizer": {
+        "width": {
+          "label": "Width",
+          "description": "Custom component width."
+        },
+        "hide-when-idle": {
+          "label": "Hide when no media is playing",
+          "description": "When enabled, the visualizer is hidden unless a player is actively playing."
         }
       }
     }
@@ -1294,6 +1353,7 @@
     "open-control-center": "Open control center",
     "volume-at": "Volume at {volume}%\nLeft click to toggle mute. Right click for settings.\nScroll to modify volume.",
     "microphone-volume-at": "Microphone volume at {volume}%\nLeft click to toggle mute. Right click for settings.\nScroll to modify volume.",
+    "brightness-at": "Brightness: {brightness}%\nRight click for settings.\nScroll to modify brightness.",
     "manage-wifi": "Manage Wi-Fi",
     "bluetooth-devices": "Bluetooth devices",
     "open-notification-history-enable-dnd": "Open notification history\nRight-click to enable \"Do not disturb\".",
@@ -1304,7 +1364,9 @@
     "play": "Play",
     "next-media": "Next media",
     "power-profile": "'{profile}' power profile",
-    "keyboard-layout": "{layout} keyboard layout"
+    "keyboard-layout": "{layout} keyboard layout",
+    "output-muted": "Muted audio output",
+    "input-muted": "Muted audio input"
   },
   "clock": {
     "tooltip": "Open calendar"
@@ -1335,6 +1397,7 @@
     "enter-width-pixels": "Enter width in pixels",
     "enter-command": "Enter command to execute (app or custom script)",
     "command-example": "echo \"Hello World\"",
+    "enter-text-to-collapse": "e.g., 'nothing is playing'. Use /regex/ for patterns.",
     "search-wallpapers": "Type to filter wallpapers...",
     "search-launcher": "Search entries... or use > for commands",
     "search": "Search...",
@@ -1635,10 +1698,6 @@
     "power-profile": {
       "changed": "Power profile changed",
       "profile-name": "\"{profile}\""
-    },
-    "audio": {
-      "muted": "Muted",
-      "unmuted": "Unmuted"
     },
     "battery": {
       "low": "Low battery",

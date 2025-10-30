@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import Quickshell
 import Quickshell.Io
 import qs.Commons
 import qs.Services
@@ -256,10 +257,10 @@ ColumnLayout {
                }
   }
 
-  // Matugen Scheme Type Selection
+  // Matugen Scheme Type Selection [Descriptions sourced from DankMaterialShell]
   NComboBox {
     label: I18n.tr("settings.color-scheme.color-source.matugen-scheme-type.label")
-    description: I18n.tr("settings.color-scheme.color-source.matugen-scheme-type.description")
+    description: I18n.tr("settings.color-scheme.color-source.matugen-scheme-type.description." + Settings.data.colorSchemes.matugenSchemeType)
     enabled: Settings.data.colorSchemes.useWallpaperColors
     opacity: Settings.data.colorSchemes.useWallpaperColors ? 1.0 : 0.6
     visible: Settings.data.colorSchemes.useWallpaperColors
@@ -679,6 +680,23 @@ ColumnLayout {
         onToggled: checked => {
                      if (ProgramCheckerService.vicinaeAvailable) {
                        Settings.data.templates.vicinae = checked
+                       AppThemeService.generate()
+                     }
+                   }
+      }
+      NCheckbox {
+        label: "Walker"
+        description: ProgramCheckerService.walkerAvailable ? I18n.tr("settings.color-scheme.templates.programs.walker.description", {
+                                                                       "filepath": "~/.config/walker/style.css"
+                                                                     }) : I18n.tr("settings.color-scheme.templates.programs.walker.description-missing", {
+                                                                                    "app": "walker"
+                                                                                  })
+        checked: Settings.data.templates.walker
+        enabled: ProgramCheckerService.walkerAvailable
+        opacity: ProgramCheckerService.walkerAvailable ? 1.0 : 0.6
+        onToggled: checked => {
+                     if (ProgramCheckerService.walkerAvailable) {
+                       Settings.data.templates.walker = checked
                        AppThemeService.generate()
                      }
                    }

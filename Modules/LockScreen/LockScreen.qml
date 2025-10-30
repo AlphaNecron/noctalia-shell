@@ -340,7 +340,17 @@ Loader {
 
                   // Date below
                   NText {
-                    text: Qt.locale().toString(Time.date, "dddd, MMMM d")
+                    text: {
+                      var lang = Qt.locale().name.split("_")[0]
+                      var formats = {
+                        "de": "dddd, d. MMMM",
+                        "es": "dddd, d 'de' MMMM",
+                        "fr": "dddd d MMMM",
+                        "pt": "dddd, d 'de' MMMM",
+                        "zh": "yyyy年M月d日 dddd"
+                      }
+                      return Qt.locale().toString(Time.date, formats[lang] || "dddd, MMMM d")
+                    }
                     pointSize: Style.fontSizeXL
                     font.weight: Font.Medium
                     color: Color.mOnSurfaceVariant
@@ -995,10 +1005,11 @@ Loader {
 
                         // Password display - show dots or actual text based on passwordVisible
                         Item {
-                          width: passwordDisplayContent.width
+                          width: Math.min(passwordDisplayContent.width, 550)
                           height: 20
                           visible: passwordInput.text.length > 0 && !parent.parent.parent.passwordVisible
                           anchors.verticalCenter: parent.verticalCenter
+                          clip: true
 
                           Row {
                             id: passwordDisplayContent
@@ -1025,6 +1036,8 @@ Loader {
                           font.weight: Font.Medium
                           visible: passwordInput.text.length > 0 && parent.parent.parent.passwordVisible
                           anchors.verticalCenter: parent.verticalCenter
+                          elide: Text.ElideRight
+                          width: Math.min(implicitWidth, 550)
                         }
 
                         Rectangle {

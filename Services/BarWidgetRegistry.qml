@@ -11,6 +11,7 @@ Singleton {
   // Widget registry object mapping widget names to components
   property var widgets: ({
                            "ActiveWindow": activeWindowComponent,
+                           "AudioVisualizer": audioVisualizerComponent,
                            "Battery": batteryComponent,
                            "Bluetooth": bluetoothComponent,
                            "Brightness": brightnessComponent,
@@ -49,6 +50,11 @@ Singleton {
                                     "useFixedWidth": false,
                                     "colorizeIcons": false
                                   },
+                                  "AudioVisualizer": {
+                                    "allowUserSettings": true,
+                                    "width": 200,
+                                    "hideWhenIdle": false
+                                  },
                                   "Battery": {
                                     "allowUserSettings": true,
                                     "displayMode": "onhover",
@@ -84,7 +90,9 @@ Singleton {
                                     "middleClickExec": "",
                                     "textCommand": "",
                                     "textStream": false,
-                                    "textIntervalMs": 3000
+                                    "textIntervalMs": 3000,
+                                    "textCollapse": "",
+                                    "parseJson": false
                                   },
                                   "KeyboardLayout": {
                                     "allowUserSettings": true,
@@ -145,7 +153,8 @@ Singleton {
                                   "Workspace": {
                                     "allowUserSettings": true,
                                     "labelMode": "index",
-                                    "hideUnoccupied": false
+                                    "hideUnoccupied": false,
+                                    "characterCount": 2
                                   },
                                   "Volume": {
                                     "allowUserSettings": true,
@@ -156,6 +165,9 @@ Singleton {
   // Component definitions - these are loaded once at startup
   property Component activeWindowComponent: Component {
     ActiveWindow {}
+  }
+  property Component audioVisualizerComponent: Component {
+    AudioVisualizer {}
   }
   property Component batteryComponent: Component {
     Battery {}
