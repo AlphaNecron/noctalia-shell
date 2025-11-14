@@ -2,13 +2,12 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 import qs.Commons
-import qs.Services
 import qs.Widgets
 
 RowLayout {
   id: root
 
-  property real minimumWidth: 280 * Style.uiScaleRatio
+  property real minimumWidth: 200 * Style.uiScaleRatio
   property real popupHeight: 180 * Style.uiScaleRatio
 
   property string label: ""
@@ -109,14 +108,6 @@ RowLayout {
       implicitHeight: Math.min(root.popupHeight, contentItem.implicitHeight + Style.marginM * 2)
       padding: Style.marginM
 
-      onOpened: {
-        PanelService.willOpenPopup(root)
-      }
-
-      onClosed: {
-        PanelService.willClosePopup(root)
-      }
-
       contentItem: NListView {
         model: combo.popup.visible ? root.model : null
         implicitHeight: contentHeight
@@ -147,7 +138,7 @@ RowLayout {
 
           background: Rectangle {
             width: parentComboBox ? parentComboBox.width - Style.marginM * 3 : 0
-            color: highlighted ? Color.mTertiary : Color.transparent
+            color: highlighted ? Color.mHover : Color.transparent
             radius: Style.radiusS
             Behavior on color {
               ColorAnimation {
@@ -162,7 +153,7 @@ RowLayout {
               return item && item.name ? item.name : ""
             }
             pointSize: Style.fontSizeM
-            color: highlighted ? Color.mOnTertiary : Color.mOnSurface
+            color: highlighted ? Color.mOnHover : Color.mOnSurface
             verticalAlignment: Text.AlignVCenter
             elide: Text.ElideRight
             Behavior on color {

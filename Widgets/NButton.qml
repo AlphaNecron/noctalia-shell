@@ -2,7 +2,7 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 import qs.Commons
-import qs.Services
+import qs.Services.UI
 
 Rectangle {
   id: root
@@ -13,7 +13,7 @@ Rectangle {
   property string tooltipText
   property color backgroundColor: Color.mPrimary
   property color textColor: Color.mOnPrimary
-  property color hoverColor: Color.mTertiary
+  property color hoverColor: Color.mHover
   property bool enabled: true
   property real fontSize: Style.fontSizeM
   property int fontWeight: Style.fontWeightBold

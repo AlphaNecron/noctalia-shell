@@ -2,7 +2,7 @@ import QtQuick
 import QtQuick.Controls
 import Quickshell
 import qs.Commons
-import qs.Services
+import qs.Services.UI
 import qs.Widgets
 
 Item {
@@ -151,7 +151,7 @@ Item {
       icon: root.icon
       pointSize: iconSize
       applyUiScale: false
-      color: hovered ? Color.mOnTertiary : Color.mOnSurface
+      color: hovered ? Color.mOnHover : Color.mOnSurface
       // Center horizontally
       x: (iconCircle.width - width) / 2
       // Center vertically accounting for font metrics

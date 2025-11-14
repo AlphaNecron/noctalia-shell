@@ -4,37 +4,51 @@ import QtQuick.Layouts
 import qs.Commons
 import qs.Widgets
 
-Rectangle {
+Item {
   id: root
 
   property string message: ""
   property string description: ""
+  property string icon: ""
   property string type: "notice"
   property int duration: 3000
   readonly property real initialScale: 0.7
 
   signal hidden
 
-  width: parent.width
-  height: Math.round(contentLayout.implicitHeight + Style.marginL * 2)
-  radius: Style.radiusL
-  visible: false
+  width: Math.round(420 * Style.uiScaleRatio + Style.marginM * 1.5 * 2)
+  height: Math.round(contentLayout.implicitHeight + Style.marginM * 3 * 2)
+  visible: true
   opacity: 0
   scale: initialScale
-  color: Color.mSurface
 
-  // Colored border based on type
-  border.color: {
-    switch (type) {
-    case "warning":
-      return Color.mPrimary
-    case "error":
-      return Color.mError
-    default:
-      return Color.mOutline
+  // Background rectangle (apply shadows here)
+  Rectangle {
+    id: background
+    anchors.fill: parent
+    anchors.margins: Style.marginM * 1.5
+    radius: Style.radiusL
+    color: Color.mSurface
+
+    // Colored border based on type
+    border.width: Math.max(2, Style.borderM)
+    border.color: {
+      switch (root.type) {
+      case "warning":
+        return Color.mPrimary
+      case "error":
+        return Color.mError
+      default:
+        return Color.mOutline
+      }
     }
   }
-  border.width: Math.max(2, Style.borderM)
+
+  NDropShadows {
+    anchors.fill: background
+    source: background
+    autoPaddingEnabled: true
+  }
 
   Behavior on opacity {
     NumberAnimation {
@@ -74,22 +88,23 @@ Rectangle {
   RowLayout {
     id: contentLayout
     anchors.fill: parent
-    anchors.margins: Style.marginL
+    anchors.topMargin: Style.marginL
+    anchors.bottomMargin: Style.marginL
+    anchors.leftMargin: Style.marginL * 2
+    anchors.rightMargin: Style.marginL * 2
     spacing: Style.marginL
 
     // Icon
     NIcon {
-      id: icon
-      icon: {
-        switch (type) {
-        case "warning":
-          return "toast-warning"
-        case "error":
-          return "toast-error"
-        default:
-          return "toast-notice"
-        }
-      }
+      icon: if (root.icon !== "") {
+              return root.icon
+            } else if (type === "warning") {
+              return "toast-warning"
+            } else if (type === "error") {
+              return "toast-error"
+            } else {
+              return "toast-notice"
+            }
       color: {
         switch (type) {
         case "warning":
@@ -133,19 +148,20 @@ Rectangle {
 
   // Click anywhere dismiss the toast
   MouseArea {
-    anchors.fill: parent
+    anchors.fill: background
     acceptedButtons: Qt.LeftButton
     onClicked: root.hide()
     cursorShape: Qt.PointingHandCursor
   }
 
-  function show(msg, desc, msgType, msgDuration) {
+  function show(msg, desc, msgIcon, msgType, msgDuration) {
     // Stop all timers first
     hideTimer.stop()
     hideAnimation.stop()
 
     message = msg
     description = desc || ""
+    icon = msgIcon || ""
     type = msgType || "notice"
     duration = msgDuration || 3000
 

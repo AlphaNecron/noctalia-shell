@@ -3,7 +3,7 @@ import QtQuick.Controls
 import QtQuick.Layouts
 import QtQuick.Effects
 import qs.Commons
-import qs.Services
+import qs.Services.UI
 
 Rectangle {
   id: root
@@ -26,8 +26,8 @@ Rectangle {
   // Color properties
   property color colorBg: Color.mSurfaceVariant
   property color colorFg: Color.mPrimary
-  property color colorBgHover: Color.mTertiary
-  property color colorFgHover: Color.mOnTertiary
+  property color colorBgHover: Color.mHover
+  property color colorFgHover: Color.mOnHover
   property color colorBorder: Color.mOutline
   property color colorBorderHover: Color.mOutline
 

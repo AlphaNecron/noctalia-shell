@@ -4,7 +4,7 @@ import QtQuick
 import Quickshell
 import Quickshell.Io
 import qs.Commons
-import qs.Services
+import qs.Services.UI
 import "../Helpers/QtObj2JS.js" as QtObj2JS
 
 Singleton {
@@ -14,7 +14,7 @@ Singleton {
   readonly property alias data: adapter
   property bool isLoaded: false
   property bool directoriesCreated: false
-  property int settingsVersion: 16
+  property int settingsVersion: 22
   property bool isDebug: Quickshell.env("NOCTALIA_DEBUG") === "1"
 
   // Define our app directories
@@ -54,8 +54,9 @@ Singleton {
     // This should only be activated once when the settings structure has changed
     // Then it should be commented out again, regular users don't need to generate
     // default settings on every start
-    // TODO: automate this someday!
-    // generateDefaultSettings()
+    if (isDebug) {
+      generateDefaultSettings()
+    }
 
     // Patch-in the local default, resolved to user's home
     adapter.general.avatarImage = defaultAvatar
@@ -146,10 +147,18 @@ Singleton {
       property real marginVertical: 0.25
       property real marginHorizontal: 0.25
 
+      // Bar outer corners (inverted/concave corners at bar edges when not floating)
+      property bool outerCorners: true
+
+      // Reserves space with compositor
+      property bool exclusive: true
+
       // Widget configuration for modular bar system
       property JsonObject widgets
       widgets: JsonObject {
         property list<var> left: [{
+            "id": "ControlCenter"
+          }, {
             "id": "SystemMonitor"
           }, {
             "id": "ActiveWindow"
@@ -173,8 +182,6 @@ Singleton {
             "id": "Brightness"
           }, {
             "id": "Clock"
-          }, {
-            "id": "ControlCenter"
           }]
       }
     }
@@ -192,7 +199,23 @@ Singleton {
       property bool animationDisabled: false
       property bool compactLockScreen: false
       property bool lockOnSuspend: true
+      property bool enableShadows: true
+      property string shadowDirection: "bottom_right"
+      property int shadowOffsetX: 2
+      property int shadowOffsetY: 3
       property string language: ""
+    }
+
+    // ui
+    property JsonObject ui: JsonObject {
+      property string fontDefault: "Roboto"
+      property string fontFixed: "DejaVu Sans Mono"
+      property real fontDefaultScale: 1.0
+      property real fontFixedScale: 1.0
+      property bool tooltipsEnabled: true
+      property real panelBackgroundOpacity: 1.0
+      property bool panelsAttachedToBar: true
+      property bool settingsPanelAttachToBar: false
     }
 
     // location
@@ -203,7 +226,9 @@ Singleton {
       property bool use12hourFormat: false
       property bool showWeekNumberInCalendar: false
       property bool showCalendarEvents: true
+      property bool showCalendarWeather: true
       property bool analogClockInCalendar: false
+      property int firstDayOfWeek: -1 // -1 = auto (use locale), 0 = Sunday, 1 = Monday, 6 = Saturday
     }
 
     // screen recorder
@@ -222,6 +247,7 @@ Singleton {
     // wallpaper
     property JsonObject wallpaper: JsonObject {
       property bool enabled: true
+      property bool overviewEnabled: false
       property string directory: ""
       property bool enableMultiMonitorDirectories: false
       property bool recursiveSearch: false
@@ -235,6 +261,8 @@ Singleton {
       property string transitionType: "random"
       property real transitionEdgeSmoothness: 0.05
       property list<var> monitors: []
+      property string panelPosition: "follow_bar"
+      property bool hideWallpaperFilenames: false
     }
 
     // applauncher
@@ -242,7 +270,6 @@ Singleton {
       property bool enableClipboardHistory: false
       // Position: center, top_left, top_right, bottom_left, bottom_right, bottom_center, top_center
       property string position: "center"
-      property real backgroundOpacity: 1.0
       property list<string> pinnedExecs: []
       property bool useApp2Unit: false
       property bool sortByMostUsed: true
@@ -296,6 +323,7 @@ Singleton {
 
     // dock
     property JsonObject dock: JsonObject {
+      property bool enabled: true
       property string displayMode: "always_visible" // "always_visible", "auto_hide", "exclusive"
       property real backgroundOpacity: 1.0
       property real floatingRatio: 1.0
@@ -312,9 +340,36 @@ Singleton {
       property bool wifiEnabled: true
     }
 
+    // session menu
+    property JsonObject sessionMenu: JsonObject {
+      property bool enableCountdown: true
+      property int countdownDuration: 10000
+      property string position: "center"
+      property bool showHeader: true
+      property list<var> powerOptions: [{
+          "action": "lock",
+          "enabled": true
+        }, {
+          "action": "suspend",
+          "enabled": true
+        }, {
+          "action": "hibernate",
+          "enabled": true
+        }, {
+          "action": "reboot",
+          "enabled": true
+        }, {
+          "action": "logout",
+          "enabled": true
+        }, {
+          "action": "shutdown",
+          "enabled": true
+        }]
+    }
+
     // notifications
     property JsonObject notifications: JsonObject {
-      property bool doNotDisturb: false
+      property bool enabled: true
       property list<string> monitors: []
       property string location: "top_right"
       property bool overlayLayer: true
@@ -323,6 +378,7 @@ Singleton {
       property int lowUrgencyDuration: 3
       property int normalUrgencyDuration: 8
       property int criticalUrgencyDuration: 15
+      property bool enableKeyboardLayoutToast: true
     }
 
     // on-screen display
@@ -332,32 +388,25 @@ Singleton {
       property list<string> monitors: []
       property int autoHideMs: 2000
       property bool overlayLayer: true
+      property real backgroundOpacity: 1.0
     }
 
     // audio
     property JsonObject audio: JsonObject {
       property int volumeStep: 5
       property bool volumeOverdrive: false
-      property int cavaFrameRate: 60
+      property int cavaFrameRate: 30
       property string visualizerType: "linear"
+      property string visualizerQuality: "high"
       property list<string> mprisBlacklist: []
       property string preferredPlayer: ""
-    }
-
-    // ui
-    property JsonObject ui: JsonObject {
-      property string fontDefault: "Roboto"
-      property string fontFixed: "DejaVu Sans Mono"
-      property real fontDefaultScale: 1.0
-      property real fontFixedScale: 1.0
-      property bool tooltipsEnabled: true
-      property bool panelsOverlayLayer: true
     }
 
     // brightness
     property JsonObject brightness: JsonObject {
       property int brightnessStep: 5
       property bool enforceMinimum: true
+      property bool enableDdcSupport: false
     }
 
     property JsonObject colorSchemes: JsonObject {
@@ -376,21 +425,30 @@ Singleton {
       property bool gtk: false
       property bool qt: false
       property bool kcolorscheme: false
+      property bool alacritty: false
       property bool kitty: false
       property bool ghostty: false
       property bool foot: false
+      property bool wezterm: false
       property bool fuzzel: false
       property bool discord: false
-      property bool discord_vesktop: false
-      property bool discord_webcord: false
-      property bool discord_armcord: false
-      property bool discord_equibop: false
-      property bool discord_lightcord: false
-      property bool discord_dorion: false
       property bool pywalfox: false
       property bool vicinae: false
       property bool walker: false
+      property bool code: false
+      property bool spicetify: false
       property bool enableUserTemplates: false
+
+      property bool code_code: false
+      property bool code_codium: false
+
+      property bool discord_vesktop: false // To be deleted soon
+      property bool discord_webcord: false // To be deleted soon
+      property bool discord_armcord: false // To be deleted soon
+      property bool discord_equibop: false // To be deleted soon
+      property bool discord_lightcord: false // To be deleted soon
+      property bool discord_dorion: false // To be deleted soon
+      property bool discord_vencord: false // To be deleted soon
     }
 
     // night light
@@ -593,6 +651,51 @@ Singleton {
                                              "id": "ControlCenter"
                                            }))
         Logger.w("Settings", "Added a ControlCenter widget to the right section")
+      }
+    }
+
+    // -----------------
+    // 5th. Migrate Discord templates (version 20 → 21)
+    // Consolidate individual discord_* properties into unified discord property
+    if (adapter.settingsVersion < 21) {
+      var anyDiscordEnabled = false
+
+      // Check if any Discord client was enabled
+      const discordClients = ["discord_vesktop", "discord_webcord", "discord_armcord", "discord_equibop", "discord_lightcord", "discord_dorion", "discord_vencord"]
+
+      for (var i = 0; i < discordClients.length; i++) {
+        if (adapter.templates[discordClients[i]]) {
+          anyDiscordEnabled = true
+          break
+        }
+      }
+
+      // Set unified discord property
+      adapter.templates.discord = anyDiscordEnabled
+
+      Logger.i("Settings", "Migrated Discord templates to unified 'discord' property (enabled:", anyDiscordEnabled + ")")
+    }
+
+    // -----------------
+    // 6th. Migrate panel background opacity (version 21 → 22)
+    // Move appLauncher.backgroundOpacity to ui.panelBackgroundOpacity
+    if (adapter.settingsVersion < 22) {
+      // Read raw JSON file to access properties not in adapter schema
+      try {
+        var rawJson = settingsFileView.text()
+
+        if (rawJson) {
+          var parsed = JSON.parse(rawJson)
+          if (parsed.appLauncher && parsed.appLauncher.backgroundOpacity !== undefined) {
+            var oldOpacity = parsed.appLauncher.backgroundOpacity
+            if (adapter.ui) {
+              adapter.ui.panelBackgroundOpacity = oldOpacity
+              Logger.i("Settings", "Migrated appLauncher.backgroundOpacity to ui.panelBackgroundOpacity (value:", oldOpacity + ")")
+            }
+          }
+        }
+      } catch (error) {
+        Logger.w("Settings", "Failed to read raw JSON for migration:", error)
       }
     }
   }

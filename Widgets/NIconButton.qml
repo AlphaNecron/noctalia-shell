@@ -2,7 +2,7 @@ import QtQuick
 import Quickshell
 import Quickshell.Widgets
 import qs.Commons
-import qs.Services
+import qs.Services.UI
 
 Rectangle {
   id: root
@@ -20,8 +20,8 @@ Rectangle {
 
   property color colorBg: Color.mSurfaceVariant
   property color colorFg: Color.mPrimary
-  property color colorBgHover: Color.mTertiary
-  property color colorFgHover: Color.mOnTertiary
+  property color colorBgHover: Color.mHover
+  property color colorFgHover: Color.mOnHover
   property color colorBorder: Color.mOutline
   property color colorBorderHover: Color.mOutline
 
@@ -30,6 +30,7 @@ Rectangle {
   signal clicked
   signal rightClicked
   signal middleClicked
+  signal wheel(int angleDelta)
 
   implicitWidth: applyUiScale ? Math.round(baseSize * Style.uiScaleRatio) : Math.round(baseSize)
   implicitHeight: applyUiScale ? Math.round(baseSize * Style.uiScaleRatio) : Math.round(baseSize)
@@ -108,5 +109,6 @@ Rectangle {
         root.middleClicked()
       }
     }
+    onWheel: wheel => root.wheel(wheel.angleDelta.y)
   }
 }

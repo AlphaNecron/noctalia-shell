@@ -5,7 +5,6 @@ import Qt.labs.folderlistmodel
 import Quickshell
 import Quickshell.Io
 import qs.Commons
-import qs.Services
 import qs.Widgets
 import "../Helpers/FuzzySort.js" as FuzzySort
 
@@ -27,14 +26,6 @@ Popup {
   // Signals
   signal accepted(var paths)
   signal cancelled
-
-  onOpened: {
-    PanelService.willOpenPopup(root)
-  }
-
-  onClosed: {
-    PanelService.willClosePopup(root)
-  }
 
   function openFilePicker() {
     if (!root.currentPath)
@@ -423,7 +414,7 @@ Popup {
               implicitWidth: 6
               implicitHeight: 100
               radius: Style.radiusM
-              color: parent.pressed ? Qt.alpha(Color.mTertiary, 0.8) : parent.hovered ? Qt.alpha(Color.mTertiary, 0.8) : Qt.alpha(Color.mTertiary, 0.8)
+              color: Qt.alpha(Color.mHover, 0.8)
               opacity: parent.policy === ScrollBar.AlwaysOn || parent.active ? 1.0 : 0.0
               Behavior on opacity {
                 NumberAnimation {
@@ -503,9 +494,9 @@ Popup {
 
             Rectangle {
               anchors.fill: parent
-              color: (mouseArea.containsMouse && !isSelected) ? Color.mTertiary : Color.transparent
+              color: (mouseArea.containsMouse && !isSelected) ? Color.mHover : Color.transparent
               radius: parent.radius
-              border.color: (mouseArea.containsMouse && !isSelected) ? Color.mTertiary : Color.transparent
+              border.color: (mouseArea.containsMouse && !isSelected) ? Color.mHover : Color.transparent
               border.width: Style.borderS
               Behavior on color {
                 ColorAnimation {
@@ -575,7 +566,7 @@ Popup {
                     if (isSelected)
                       return Color.mSecondary
                     else if (mouseArea.containsMouse)
-                      return model.fileIsDir ? Color.mOnTertiary : Color.mOnTertiary
+                      return Color.mOnHover
                     else
                       return model.fileIsDir ? Color.mPrimary : Color.mOnSurfaceVariant
                   }
@@ -609,7 +600,7 @@ Popup {
                   if (isSelected)
                     return Color.mSecondary
                   else if (mouseArea.containsMouse)
-                    return Color.mOnTertiary
+                    return Color.mOnHover
                   else
                     return Color.mOnSurfaceVariant
                 }
@@ -681,7 +672,7 @@ Popup {
               if (filePickerPanel.currentSelection.includes(model.filePath))
                 return Color.mSecondary
               if (mouseArea.containsMouse)
-                return Color.mTertiary
+                return Color.mHover
               return Color.transparent
             }
             radius: Style.radiusS
