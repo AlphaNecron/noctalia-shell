@@ -91,10 +91,10 @@ Item {
     id: pillBackground
     width: buttonSize
     height: revealed ? (buttonSize + maxPillHeight - pillOverlap) : buttonSize
-    radius: halfButtonSize
+    radius: thirdButtonSize
     color: hovered ? (customBackgroundColor.a > 0 ? Qt.lighter(customBackgroundColor, 1.1) : Color.mHover) : (customBackgroundColor.a > 0 ? customBackgroundColor : Style.capsuleColor)
 
-    readonly property int halfButtonSize: Math.round(buttonSize * 0.5)
+    readonly property int thirdButtonSize: Math.round(buttonSize * 0.4)
 
     Behavior on color {
       ColorAnimation {
@@ -117,7 +117,7 @@ Item {
     opacity: revealed ? Style.opacityFull : Style.opacityNone
     color: Color.transparent // Make pill background transparent to avoid double opacity
 
-    readonly property int thirdButtonSize: Math.round(buttonSize * 0.33)
+    readonly property int thirdButtonSize: Math.round(buttonSize * 0.4)
 
     // Radius logic for vertical expansion - rounded on the side that connects to icon
     topLeftRadius: openUpward ? thirdButtonSize : 0

@@ -60,7 +60,7 @@ Rectangle {
     }
     return colorBg;
   }
-  radius: Math.round(width * 0.33)
+  radius: Math.round(width * 0.4)
   border.color: root.enabled && root.hovering ? colorBorderHover : colorBorder
   border.width: Style.borderS
 

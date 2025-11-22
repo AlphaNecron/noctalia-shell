@@ -79,11 +79,11 @@ Item {
     id: pillBackground
     width: root.width
     height: pillHeight
-    radius: halfPillHeight
+    radius: thirdPillHeight
     color: hovered ? (customBackgroundColor.a > 0 ? Qt.lighter(customBackgroundColor, 1.1) : Color.mHover) : (customBackgroundColor.a > 0 ? customBackgroundColor : Style.capsuleColor)
     anchors.verticalCenter: parent.verticalCenter
 
-    readonly property int halfPillHeight: Math.round(pillHeight * 0.5)
+    readonly property int thirdPillHeight: Math.round(pillHeight * 0.4)
 
     Behavior on color {
       ColorAnimation {
@@ -105,7 +105,7 @@ Item {
     opacity: revealed ? Style.opacityFull : Style.opacityNone
     color: Color.transparent // Make pill background transparent to avoid double opacity
 
-    readonly property int thirdPillHeight: Math.round(pillHeight * 0.33)
+    readonly property int thirdPillHeight: Math.round(pillHeight * 0.4)
 
     topLeftRadius: oppositeDirection ? 0 : thirdPillHeight
     bottomLeftRadius: oppositeDirection ? 0 : thirdPillHeight
@@ -155,7 +155,7 @@ Item {
     id: iconCircle
     width: pillHeight
     height: pillHeight
-    radius: width * 0.33
+    radius: width * 0.4
     color: hovered ? Color.mTertiary : Settings.data.bar.showCapsule ? Color.mSurfaceVariant : Color.transparent
     anchors.verticalCenter: parent.verticalCenter
 

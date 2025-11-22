@@ -37,7 +37,7 @@ Rectangle {
 
   opacity: root.enabled ? Style.opacityFull : Style.opacityMedium
   color: root.enabled && root.hovering ? colorBgHover : colorBg
-  radius: Math.round(width * 0.33)
+  radius: Math.round(width * 0.4)
   border.color: root.enabled && root.hovering ? colorBorderHover : colorBorder
   border.width: Style.borderS
 
