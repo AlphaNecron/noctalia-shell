@@ -8,6 +8,7 @@ import qs.Commons
 import qs.Modules.Panels.ControlCenter.Cards
 import qs.Modules.Panels.ControlCenter.Widgets
 import qs.Modules.Panels.Settings
+import qs.Services.System
 import qs.Services.UI
 import qs.Widgets
 
@@ -38,9 +39,8 @@ NBox {
       Layout.fillWidth: true
       spacing: Style.marginXXS
       NText {
-        text: Quickshell.env("USER") || "user"
+        text: HostService.displayName
         font.weight: Style.fontWeightBold
-        font.capitalization: Font.Capitalize
       }
       NText {
         text: I18n.tr("system.uptime", {
@@ -64,9 +64,9 @@ NBox {
         icon: "settings"
         tooltipText: I18n.tr("tooltips.open-settings")
         onClicked: {
-          var panel = PanelService.getPanel("settingsPanel", screen)
-          panel.requestedTab = SettingsPanel.Tab.General
-          panel.open()
+          var panel = PanelService.getPanel("settingsPanel", screen);
+          panel.requestedTab = SettingsPanel.Tab.General;
+          panel.open();
         }
       }
 
@@ -74,8 +74,8 @@ NBox {
         icon: "power"
         tooltipText: I18n.tr("tooltips.session-menu")
         onClicked: {
-          PanelService.getPanel("sessionMenuPanel", screen)?.open()
-          PanelService.getPanel("controlCenterPanel", screen)?.close()
+          PanelService.getPanel("sessionMenuPanel", screen)?.open();
+          PanelService.getPanel("controlCenterPanel", screen)?.close();
         }
       }
 
@@ -83,7 +83,7 @@ NBox {
         icon: "close"
         tooltipText: I18n.tr("tooltips.close")
         onClicked: {
-          PanelService.getPanel("controlCenterPanel", screen)?.close()
+          PanelService.getPanel("controlCenterPanel", screen)?.close();
         }
       }
     }
@@ -105,14 +105,14 @@ NBox {
 
     stdout: StdioCollector {
       onStreamFinished: {
-        var uptimeSeconds = parseFloat(this.text.trim().split(' ')[0])
-        uptimeText = Time.formatVagueHumanReadableDuration(uptimeSeconds)
-        uptimeProcess.running = false
+        var uptimeSeconds = parseFloat(this.text.trim().split(' ')[0]);
+        uptimeText = Time.formatVagueHumanReadableDuration(uptimeSeconds);
+        uptimeProcess.running = false;
       }
     }
   }
 
   function updateSystemInfo() {
-    uptimeProcess.running = true
+    uptimeProcess.running = true;
   }
 }

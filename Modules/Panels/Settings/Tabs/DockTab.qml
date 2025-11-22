@@ -13,15 +13,15 @@ ColumnLayout {
 
   // Helper functions to update arrays immutably
   function addMonitor(list, name) {
-    const arr = (list || []).slice()
+    const arr = (list || []).slice();
     if (!arr.includes(name))
-      arr.push(name)
-    return arr
+      arr.push(name);
+    return arr;
   }
   function removeMonitor(list, name) {
     return (list || []).filter(function (n) {
-      return n !== name
-    })
+      return n !== name;
+    });
   }
 
   NHeader {
@@ -42,19 +42,23 @@ ColumnLayout {
     Layout.fillWidth: true
     label: I18n.tr("settings.dock.appearance.display.label")
     description: I18n.tr("settings.dock.appearance.display.description")
-    model: [{
+    model: [
+      {
         "key": "always_visible",
         "name": I18n.tr("settings.dock.appearance.display.always-visible")
-      }, {
+      },
+      {
         "key": "auto_hide",
         "name": I18n.tr("settings.dock.appearance.display.auto-hide")
-      }, {
+      },
+      {
         "key": "exclusive",
         "name": I18n.tr("settings.dock.appearance.display.exclusive")
-      }]
+      }
+    ]
     currentKey: Settings.data.dock.displayMode
     onSelected: key => {
-                  Settings.data.dock.displayMode = key
+                  Settings.data.dock.displayMode = key;
                 }
   }
 
@@ -74,6 +78,25 @@ ColumnLayout {
       value: Settings.data.dock.backgroundOpacity
       onMoved: value => Settings.data.dock.backgroundOpacity = value
       text: Math.floor(Settings.data.dock.backgroundOpacity * 100) + "%"
+    }
+  }
+
+  ColumnLayout {
+    visible: Settings.data.dock.enabled
+    spacing: Style.marginXXS
+    Layout.fillWidth: true
+    NLabel {
+      label: I18n.tr("settings.dock.appearance.border-radius.label")
+      description: I18n.tr("settings.dock.appearance.border-radius.description")
+    }
+    NValueSlider {
+      Layout.fillWidth: true
+      from: 0
+      to: 1
+      stepSize: 0.01
+      value: Settings.data.dock.radiusRatio
+      onMoved: value => Settings.data.dock.radiusRatio = value
+      text: Math.floor(Settings.data.dock.radiusRatio * 100) + "%"
     }
   }
 
@@ -158,20 +181,20 @@ ColumnLayout {
         Layout.fillWidth: true
         label: modelData.name || "Unknown"
         description: {
-          const compositorScale = CompositorService.getDisplayScale(modelData.name)
+          const compositorScale = CompositorService.getDisplayScale(modelData.name);
           I18n.tr("system.monitor-description", {
                     "model": modelData.model,
                     "width": modelData.width * compositorScale,
                     "height": modelData.height * compositorScale,
                     "scale": compositorScale
-                  })
+                  });
         }
         checked: (Settings.data.dock.monitors || []).indexOf(modelData.name) !== -1
         onToggled: checked => {
                      if (checked) {
-                       Settings.data.dock.monitors = addMonitor(Settings.data.dock.monitors, modelData.name)
+                       Settings.data.dock.monitors = addMonitor(Settings.data.dock.monitors, modelData.name);
                      } else {
-                       Settings.data.dock.monitors = removeMonitor(Settings.data.dock.monitors, modelData.name)
+                       Settings.data.dock.monitors = removeMonitor(Settings.data.dock.monitors, modelData.name);
                      }
                    }
       }

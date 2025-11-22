@@ -123,10 +123,6 @@
           "stream-description": "输入一个要持续运行的命令。"
         },
         "dynamic-text": "动态文本",
-        "hide-vertical": {
-          "description": "如果启用，当栏处于垂直布局（左或右）时，将不显示命令输出的文本。",
-          "label": "在垂直栏中隐藏文本"
-        },
         "icon": {
           "description": "从库中选择图标。",
           "label": "图标"
@@ -135,6 +131,14 @@
           "description": "左键点击按钮时执行的命令。",
           "label": "左键点击",
           "update-text": "左键单击时更新显示的文本"
+        },
+        "max-text-length-horizontal": {
+          "description": "在水平栏中显示的最大字符数（0 为隐藏文本）",
+          "label": "最大文本长度（水平）"
+        },
+        "max-text-length-vertical": {
+          "description": "在垂直栏中显示的最大字符数（0 为隐藏文本）",
+          "label": "最大文本长度（垂直）"
         },
         "middle-click": {
           "description": "中键点击按钮时执行的命令。",
@@ -157,6 +161,23 @@
         "text-stream": {
           "description": "来自命令的流式输出行将作为文本显示在按钮上。",
           "label": "流"
+        },
+        "wheel": {
+          "description": "使用滚轮时执行的命令。\n在命令中使用 $delta 表示滚轮增量",
+          "label": "滚轮",
+          "update-text": "滚轮滚动时更新显示的文本"
+        },
+        "wheel-down": {
+          "description": "滚轮向下滚动时执行的命令。",
+          "label": "滚轮向下命令"
+        },
+        "wheel-mode-separate": {
+          "description": "为滚轮向上和向下启用单独的命令",
+          "label": "分开滚轮命令"
+        },
+        "wheel-up": {
+          "description": "滚轮向上滚动时执行的命令。",
+          "label": "滚轮向上命令"
         }
       },
       "dialog": {
@@ -202,6 +223,10 @@
           "description": "显示当前播放曲目的专辑封面。",
           "label": "显示专辑封面"
         },
+        "show-artist-first": {
+          "description": "显示艺术家 - 标题，而不是标题 - 艺术家。",
+          "label": "先显示艺术家"
+        },
         "show-visualizer": {
           "description": "播放音乐时显示音频可视化器。",
           "label": "显示可视化器"
@@ -224,10 +249,10 @@
       "notification-history": {
         "hide-badge-when-zero": {
           "description": "当没有未读通知时隐藏通知徽章。",
-          "label": "零时隐藏徽章"
+          "label": "空时隐藏徽章"
         },
         "show-unread-badge": {
-          "description": "显示显示未读通知数量的徽章。",
+          "description": "显示一个用于展示未读通知数量的徽章。",
           "label": "显示未读徽章"
         }
       },
@@ -242,6 +267,9 @@
         }
       },
       "system-monitor": {
+        "cpu-critical-threshold": {
+          "label": "CPU 使用率（严重）"
+        },
         "cpu-temperature": {
           "description": "如果可用，显示CPU温度读数。",
           "label": "CPU温度"
@@ -249,6 +277,25 @@
         "cpu-usage": {
           "description": "显示当前CPU使用百分比。",
           "label": "CPU使用率"
+        },
+        "cpu-warning-threshold": {
+          "label": "CPU 使用率（警告）"
+        },
+        "disk-critical-threshold": {
+          "label": "存储空间（严重）"
+        },
+        "disk-path": {
+          "description": "选择要监控的磁盘挂载点。",
+          "label": "磁盘路径"
+        },
+        "disk-warning-threshold": {
+          "label": "存储空间（警告）"
+        },
+        "mem-critical-threshold": {
+          "label": "内存使用率（严重）"
+        },
+        "mem-warning-threshold": {
+          "label": "内存使用率（警告）"
         },
         "memory-percentage": {
           "description": "以百分比而不是绝对值显示内存使用情况。",
@@ -265,6 +312,16 @@
         "storage-usage": {
           "description": "显示磁盘空间使用信息。",
           "label": "存储使用率"
+        },
+        "temp-critical-threshold": {
+          "label": "CPU 温度（严重）"
+        },
+        "temp-warning-threshold": {
+          "label": "CPU 温度（警告）"
+        },
+        "thresholds": {
+          "description": "配置系统指标提示的阈值，超出阈值时将以高亮色进行提示。",
+          "header": "阈值设置"
         }
       },
       "taskbar": {
@@ -286,13 +343,9 @@
         }
       },
       "taskbar-grouped": {
-        "show-numbers-only-when-occupied": {
-          "description": "只为有打开窗口的工作区显示编号",
-          "label": "仅在有窗口时显示编号"
-        },
-        "show-workspace-numbers": {
-          "description": "在任务组左上角显示工作区编号",
-          "label": "显示工作区编号"
+        "show-labels-only-when-occupied": {
+          "description": "只显示有打开窗口的工作区标签。",
+          "label": "仅在被占用时显示标签"
         }
       },
       "tray": {
@@ -335,13 +388,6 @@
     "health": "健康状况：{percent}%",
     "idle": "空闲。",
     "no-battery-detected": "未检测到电池。",
-    "panel": {
-      "balanced": "平衡 ({percent}%)",
-      "disabled": "电池管理器已禁用",
-      "full": "完全容量 ({percent}%)",
-      "lifespan": "延长寿命 ({percent}%)",
-      "title": "充电阈值"
-    },
     "plugged-in": "已接通电源。",
     "time-left": "剩余时间：{time}。",
     "time-until-full": "充满所需时间：{time}。"
@@ -370,8 +416,60 @@
       "loading": "正在加载天气…"
     }
   },
+  "changelog": {
+    "error": {
+      "fetch-failed": "无法加载更新日志数据，请稍后再试。",
+      "rate-limit": "已达到 GitHub 速率限制，请稍后再试。"
+    },
+    "panel": {
+      "buttons": {
+        "discord": "加入我们的 Discord",
+        "dismiss": "确定"
+      },
+      "empty": "暂时没有可用的发行说明。",
+      "highlight-title": "重点更新",
+      "section": {
+        "released": "{date} 发布",
+        "version": "版本 {version}"
+      },
+      "subtitle": {
+        "fresh": "感谢安装 Noctalia！以下是本次构建包含的内容。",
+        "updated": "已从 {previousVersion} 更新"
+      },
+      "title": "{version} 有哪些更新",
+      "version": {
+        "new-user": "全新安装"
+      }
+    }
+  },
   "clock": {
     "tooltip": "打开日历"
+  },
+  "context-menu": {
+    "activate-app": "激活 {app}",
+    "clear-history": "清除历史记录",
+    "close-app": "关闭 {app}",
+    "connect-vpn": "连接 {name}",
+    "cycle-visualizer": "切换可视化器样式",
+    "disable-bluetooth": "禁用蓝牙",
+    "disable-dnd": "关闭勿扰模式",
+    "disable-wifi": "禁用Wi-Fi",
+    "disconnect-vpn": "断开 {name}",
+    "enable-bluetooth": "启用蓝牙",
+    "enable-dnd": "启用勿扰模式",
+    "enable-wifi": "启用 Wi-Fi",
+    "next": "下一首",
+    "open-calendar": "打开日历",
+    "open-display-settings": "显示设置",
+    "open-launcher": "打开启动器",
+    "open-mixer": "音频混音器",
+    "open-settings": "打开设置",
+    "pause": "暂停",
+    "play": "播放",
+    "previous": "上一首",
+    "random-wallpaper": "随机壁纸",
+    "toggle-mute": "切换静音",
+    "widget-settings": "小部件设置"
   },
   "dock": {
     "menu": {
@@ -536,6 +634,7 @@
     },
     "workspace-labels": {
       "index": "索引",
+      "index+name": "索引和名称",
       "name": "名称",
       "none": "无"
     }
@@ -551,6 +650,7 @@
     "search": "搜索...",
     "search-icons": "例如：noctalia, niri, battery, cloud",
     "search-launcher": "搜索条目...或使用 > 执行命令",
+    "search-wallhaven": "搜索 Wallhaven...",
     "search-wallpapers": "输入以筛选壁纸...",
     "select": "选择",
     "test": "测试"
@@ -647,13 +747,13 @@
   },
   "session-menu": {
     "action-in-seconds": "在 {seconds} 秒后将{action}...",
+    "hibernate": "休眠",
     "lock": "锁定",
     "lock-and-suspend": "锁定并挂起",
     "logout": "注销",
     "reboot": "重启",
     "shutdown": "关机",
     "suspend": "挂起",
-    "hibernate": "休眠",
     "title": "会话菜单"
   },
   "settings": {
@@ -691,6 +791,11 @@
           "description": "配置可用的音频输入和输出设备。",
           "label": "音频设备"
         }
+      },
+      "external-mixer": {
+        "description": "输入激活外部音频混音器功能时要启动的命令或应用程序路径。",
+        "label": "外部音频混音器命令",
+        "placeholder": "pwvucontrol || pavucontrol"
       },
       "media": {
         "excluded-player": {
@@ -765,6 +870,10 @@
         "background-opacity": {
           "description": "调整状态栏的背景不透明度。",
           "label": "背景不透明度"
+        },
+        "capsule-opacity": {
+          "description": "设置显示胶囊时小部件背景的不透明度。",
+          "label": "胶囊不透明度"
         },
         "density": {
           "description": "调整状态栏的内边距以获得紧凑或宽松的外观。",
@@ -857,6 +966,41 @@
           "description": "切换到更暗的主题，便于夜间观看。",
           "label": "深色模式"
         }
+      },
+      "delete": {
+        "error": {
+          "description": "删除 {scheme} 失败",
+          "title": "删除失败"
+        },
+        "success": {
+          "description": "成功删除 {scheme}",
+          "title": "配色方案已删除"
+        }
+      },
+      "download": {
+        "button": "下载更多",
+        "delete": "删除",
+        "download": "下载",
+        "downloading": "正在下载...",
+        "empty": "没有可用的配色方案",
+        "error": {
+          "api-error": "API 错误: {status}",
+          "description": "下载 {scheme} 失败",
+          "download-failed": "下载失败，退出代码: {code}",
+          "invalid-response": "无效的 API 响应格式",
+          "no-files": "未找到方案的文件",
+          "parse-failed": "解析 API 响应失败: {error}",
+          "rate-limit": "GitHub API 速率限制已超出",
+          "title": "下载失败"
+        },
+        "fetching": "正在获取可用的配色方案...",
+        "installed": "已安装",
+        "refresh": "刷新",
+        "success": {
+          "description": "成功下载 {scheme}",
+          "title": "配色方案已下载"
+        },
+        "title": "下载配色方案"
       },
       "predefined": {
         "generate-templates": {
@@ -1096,6 +1240,10 @@
           "description": "调整 Dock 的背景不透明度。",
           "label": "背景不透明度"
         },
+        "border-radius": {
+          "description": "调整程序坞的边框半径。",
+          "label": "边框半径"
+        },
         "colorize-icons": {
           "description": "将主题颜色应用到 Dock 应用图标（仅限非聚焦应用）。",
           "label": "着色图标"
@@ -1247,6 +1395,10 @@
           "description": "调整启动器的背景不透明度。",
           "label": "背景不透明度"
         },
+        "clip-preview": {
+          "description": "在使用 >clip 命令时显示剪贴板内容的预览。",
+          "label": "启用剪贴板预览"
+        },
         "clipboard-history": {
           "description": "从启动器访问之前复制的项目。",
           "label": "启用剪贴板历史记录"
@@ -1334,6 +1486,10 @@
         "section": {
           "description": "选择您喜欢的温度单位。",
           "label": "天气"
+        },
+        "show-effects": {
+          "description": "在天气卡片上显示额外的视觉效果（如雨、雪或闪电）。",
+          "label": "显示天气效果"
         },
         "show-in-calendar": {
           "description": "直接在您的日历视图中显示每日天气预报。",
@@ -1569,15 +1725,75 @@
       "title": "会话菜单"
     },
     "system-monitor": {
+      "cpu-critical-threshold": {
+        "label": "严重阈值"
+      },
+      "cpu-section": {
+        "label": "CPU 使用率"
+      },
+      "cpu-warning-threshold": {
+        "label": "警告阈值"
+      },
+      "critical-color": {
+        "label": "严重颜色"
+      },
+      "custom-highlight-colors-title": {
+        "label": "自定义高亮颜色"
+      },
+      "disk-critical-threshold": {
+        "label": "严重阈值"
+      },
+      "disk-section": {
+        "label": "磁盘使用率"
+      },
+      "disk-warning-threshold": {
+        "label": "警告阈值"
+      },
       "general": {
         "section": {
           "description": "配置系统监视器的行为和外观。",
           "label": "通用"
         }
       },
-      "title": "系统监视器"
+      "highlight-colors-section": {
+        "label": "高亮颜色"
+      },
+      "mem-critical-threshold": {
+        "label": "严重阈值"
+      },
+      "mem-warning-threshold": {
+        "label": "警告阈值"
+      },
+      "memory-section": {
+        "label": "内存使用率"
+      },
+      "temp-critical-threshold": {
+        "label": "严重阈值"
+      },
+      "temp-warning-threshold": {
+        "label": "警告阈值"
+      },
+      "temperature-section": {
+        "label": "CPU 温度"
+      },
+      "thresholds-section": {
+        "description": "设置各项系统测量指标的阈值，超过该值将以高亮色进行提示。",
+        "label": "阈值"
+      },
+      "title": "系统监视器",
+      "use-custom-highlight-colors": {
+        "description": "关闭时将使用主题默认高亮颜色。",
+        "label": "使用自定义高亮颜色"
+      },
+      "warning-color": {
+        "label": "警告颜色"
+      }
     },
     "user-interface": {
+      "allow-panels-without-bar": {
+        "description": "启用后，面板可以在任何屏幕上打开。禁用后，面板将仅在有栏的屏幕上打开，这可以减少内存使用。",
+        "label": "允许在没有栏的屏幕上显示面板"
+      },
       "animation-disable": {
         "description": "禁用所有动画以获得更快、更流畅的体验。",
         "label": "禁用 UI 动画"
@@ -1595,6 +1811,11 @@
       "dim-desktop": {
         "description": "当面板或菜单打开时，桌面变暗。",
         "label": "昏暗的桌面"
+      },
+      "dimmer-opacity": {
+        "description": "设置桌面变暗时的不透明度。",
+        "label": "变暗桌面不透明度",
+        "reset": "重置变暗桌面不透明度"
       },
       "panel-background-opacity": {
         "description": "设置所有面板的背景不透明度（启动器、控制中心、设置等）。",
@@ -1711,6 +1932,11 @@
         },
         "select-folder": "选择壁纸文件夹",
         "select-monitor-folder": "选择显示器壁纸文件夹",
+        "selector": {
+          "description": "选择你的壁纸。",
+          "label": "壁纸选择器",
+          "tooltip": "打开壁纸选择器"
+        },
         "selector-position": {
           "description": "选择壁纸选择面板的显示位置。",
           "label": "选择器位置"
@@ -1774,19 +2000,6 @@
     "battery": {
       "low": "电量低",
       "low-desc": "电量为 {percent}%。请连接充电器。"
-    },
-    "battery-manager": {
-      "initial-setup": "需要初始设置",
-      "install-failed": "安装失败",
-      "install-missing": "缺少必要文件",
-      "install-success": "安装成功",
-      "install-unsupported": "系统不受支持",
-      "set-failed": "设置电池阈值失败",
-      "set-success-desc": "电池阈值已设置为 {percent}%",
-      "title": "电池阈值",
-      "uninstall-failed": "卸载失败",
-      "uninstall-setup": "正在卸载，需要身份验证",
-      "uninstall-success": "卸载成功"
     },
     "bluetooth": {
       "disabled": "已禁用",
@@ -1856,6 +2069,10 @@
       "title-matugen": "Matugen模板处理失败",
       "title-predefined": "预定义的颜色方案处理失败"
     },
+    "vpn": {
+      "connected": "已连接到“{name}”",
+      "disconnected": "已断开与“{name}”的连接"
+    },
     "wallpaper-colors": {
       "disabled": "壁纸颜色已禁用",
       "enabled": "壁纸颜色已启用",
@@ -1889,6 +2106,7 @@
     "input-muted": "静音输入设备",
     "keep-awake": "保持唤醒",
     "keyboard-layout": "{layout} 键盘布局",
+    "manage-vpn": "管理 VPN 连接",
     "manage-wifi": "管理 Wi-Fi",
     "microphone-volume-at": "麦克风音量 {volume}%\n左键点击进入设置。右键点击切换静音。\n滚动滚轮调节音量。",
     "move-to-center-section": "移动到中央部分",
@@ -1916,6 +2134,7 @@
     "previous-month": "上个月",
     "refresh": "刷新",
     "refresh-devices": "刷新设备",
+    "refresh-wallhaven": "刷新 Wallhaven 结果",
     "refresh-wallpaper-list": "刷新壁纸列表",
     "remove-widget": "移除小部件",
     "screen-recorder-not-installed": "屏幕录制器未安装",
@@ -1945,8 +2164,51 @@
         "description": "一次性将选定的壁纸应用到所有显示器。",
         "label": "应用到所有显示器"
       },
+      "categories": {
+        "anime": "动漫",
+        "general": "通用",
+        "label": "分类",
+        "people": "人物"
+      },
+      "order": {
+        "asc": "升序",
+        "desc": "降序",
+        "label": "顺序"
+      },
+      "purity": {
+        "all": "全部",
+        "label": "内容过滤器",
+        "sfw": "SFW",
+        "sketchy": "Sketchy"
+      },
+      "resolution": {
+        "atleast": "至少",
+        "exact": "精确",
+        "label": "分辨率",
+        "mode": {
+          "label": "模式"
+        }
+      },
       "search": "搜索：",
-      "title": "壁纸选择器"
+      "sorting": {
+        "date_added": "添加日期",
+        "favorites": "收藏",
+        "label": "排序方式",
+        "random": "随机",
+        "relevance": "相关性",
+        "toplist": "排行榜",
+        "views": "浏览量"
+      },
+      "source": {
+        "label": "来源",
+        "local": "本地",
+        "wallhaven": "Wallhaven"
+      },
+      "title": "壁纸选择器",
+      "wallhaven-settings": {
+        "apply": "应用",
+        "title": "Wallhaven 设置"
+      }
     },
     "transitions": {
       "disc": "圆盘",
@@ -1956,7 +2218,13 @@
       "stripes": "条纹",
       "wipe": "擦除"
     },
-    "try-different-search": "尝试不同的搜索查询。"
+    "try-different-search": "尝试不同的搜索查询。",
+    "unknown": "未知",
+    "wallhaven": {
+      "loading": "正在加载壁纸...",
+      "no-results": "未找到壁纸。请尝试不同的搜索查询。",
+      "page": "{current} / {total}"
+    }
   },
   "weather": {
     "clear-sky": "晴朗",
@@ -2065,6 +2333,7 @@
   },
   "wifi": {
     "panel": {
+      "available-networks": "可用网络",
       "connect": "连接",
       "connected": "已连接",
       "disabled": "Wi-Fi 已禁用",
@@ -2075,6 +2344,7 @@
       "forget": "忘记",
       "forget-network": "忘记此网络？",
       "forgetting": "正在忘记...",
+      "known-networks": "已知网络",
       "no-networks": "未找到网络",
       "password": "密码",
       "saved": "已保存",

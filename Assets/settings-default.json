@@ -1,5 +1,5 @@
 {
-  "settingsVersion": 22,
+  "settingsVersion": 23,
   "setupCompleted": false,
   "bar": {
     "position": "top",
@@ -7,6 +7,7 @@
     "monitors": [],
     "density": "default",
     "showCapsule": true,
+    "capsuleOpacity": 1,
     "floating": false,
     "marginVertical": 0.25,
     "marginHorizontal": 0.25,
@@ -59,7 +60,7 @@
   },
   "general": {
     "avatarImage": "",
-    "dimDesktop": true,
+    "dimmerOpacity": 0.6,
     "showScreenCorners": false,
     "forceBlackScreenCorners": false,
     "scaleRatio": 1,
@@ -73,7 +74,8 @@
     "shadowDirection": "bottom_right",
     "shadowOffsetX": 2,
     "shadowOffsetY": 3,
-    "language": ""
+    "language": "",
+    "allowPanelsOnScreenWithoutBar": true
   },
   "ui": {
     "fontDefault": "Roboto",
@@ -88,6 +90,7 @@
   "location": {
     "name": "Tokyo",
     "weatherEnabled": true,
+    "weatherShowEffects": true,
     "useFahrenheit": false,
     "use12hourFormat": false,
     "showWeekNumberInCalendar": false,
@@ -124,10 +127,20 @@
     "transitionEdgeSmoothness": 0.05,
     "monitors": [],
     "panelPosition": "follow_bar",
-    "hideWallpaperFilenames": false
+    "hideWallpaperFilenames": false,
+    "useWallhaven": false,
+    "wallhavenQuery": "",
+    "wallhavenSorting": "relevance",
+    "wallhavenOrder": "desc",
+    "wallhavenCategories": "111",
+    "wallhavenPurity": "100",
+    "wallhavenResolutionMode": "atleast",
+    "wallhavenResolutionWidth": "",
+    "wallhavenResolutionHeight": ""
   },
   "appLauncher": {
     "enableClipboardHistory": false,
+    "enableClipPreview": true,
     "position": "center",
     "pinnedExecs": [],
     "useApp2Unit": false,
@@ -191,10 +204,24 @@
       }
     ]
   },
+  "systemMonitor": {
+    "cpuWarningThreshold": 80,
+    "cpuCriticalThreshold": 90,
+    "tempWarningThreshold": 80,
+    "tempCriticalThreshold": 90,
+    "memWarningThreshold": 80,
+    "memCriticalThreshold": 90,
+    "diskWarningThreshold": 80,
+    "diskCriticalThreshold": 90,
+    "useCustomColors": false,
+    "warningColor": "",
+    "criticalColor": ""
+  },
   "dock": {
     "enabled": true,
     "displayMode": "always_visible",
     "backgroundOpacity": 1,
+    "radiusRatio": 0.1,
     "floatingRatio": 1,
     "size": 1,
     "onlySameOutput": true,
@@ -264,7 +291,8 @@
     "visualizerType": "linear",
     "visualizerQuality": "high",
     "mprisBlacklist": [],
-    "preferredPlayer": ""
+    "preferredPlayer": "",
+    "externalMixer": "pwvucontrol || pavucontrol"
   },
   "brightness": {
     "brightnessStep": 5,
@@ -297,13 +325,7 @@
     "walker": false,
     "code": false,
     "spicetify": false,
-    "enableUserTemplates": false,
-    "discord_vesktop": false,
-    "discord_webcord": false,
-    "discord_armcord": false,
-    "discord_equibop": false,
-    "discord_lightcord": false,
-    "discord_dorion": false
+    "enableUserTemplates": false
   },
   "nightLight": {
     "enabled": false,
@@ -314,12 +336,12 @@
     "manualSunrise": "06:30",
     "manualSunset": "18:30"
   },
+  "changelog": {
+    "lastSeenVersion": ""
+  },
   "hooks": {
     "enabled": false,
     "wallpaperChange": "",
     "darkModeChange": ""
-  },
-  "battery": {
-    "chargingMode": 0
   }
 }

@@ -123,10 +123,6 @@
           "stream-description": "Introduce un comando para ejecutar continuamente."
         },
         "dynamic-text": "Texto dinámico",
-        "hide-vertical": {
-          "description": "Si está activado, el texto de la salida del comando no se mostrará cuando la barra esté en un diseño vertical (izquierda o derecha).",
-          "label": "Ocultar texto en barra vertical"
-        },
         "icon": {
           "description": "Selecciona un icono de la biblioteca.",
           "label": "Icono"
@@ -135,6 +131,14 @@
           "description": "Comando a ejecutar cuando se hace clic izquierdo en el botón.",
           "label": "Clic izquierdo",
           "update-text": "Actualizar el texto mostrado al hacer clic izquierdo"
+        },
+        "max-text-length-horizontal": {
+          "description": "Número máximo de caracteres a mostrar en la barra horizontal (0 para ocultar el texto)",
+          "label": "Longitud máxima de texto (horizontal)"
+        },
+        "max-text-length-vertical": {
+          "description": "Número máximo de caracteres a mostrar en la barra vertical (0 para ocultar el texto)",
+          "label": "Longitud máxima de texto (vertical)"
         },
         "middle-click": {
           "description": "Comando a ejecutar cuando se hace clic medio en el botón.",
@@ -157,6 +161,23 @@
         "text-stream": {
           "description": "Las líneas transmitidas desde el comando se mostrarán como texto en el botón.",
           "label": "Transmisión"
+        },
+        "wheel": {
+          "description": "Comando a ejecutar cuando se usa la rueda de desplazamiento.\nUsa $delta para el delta de la rueda de desplazamiento en el comando",
+          "label": "Rueda de desplazamiento",
+          "update-text": "Actualizar texto mostrado al desplazarse"
+        },
+        "wheel-down": {
+          "description": "Comando a ejecutar cuando la rueda de desplazamiento se desplaza hacia abajo.",
+          "label": "Comando de rueda hacia abajo"
+        },
+        "wheel-mode-separate": {
+          "description": "Habilitar comandos separados para rueda arriba y abajo",
+          "label": "Comandos de rueda separados"
+        },
+        "wheel-up": {
+          "description": "Comando a ejecutar cuando la rueda de desplazamiento se desplaza hacia arriba.",
+          "label": "Comando de rueda hacia arriba"
         }
       },
       "dialog": {
@@ -202,6 +223,10 @@
           "description": "Mostrar la portada del álbum de la pista que se está reproduciendo actualmente.",
           "label": "Mostrar arte del álbum"
         },
+        "show-artist-first": {
+          "description": "Mostrar artista - título en lugar de título - artista.",
+          "label": "Mostrar primero al artista"
+        },
         "show-visualizer": {
           "description": "Mostrar un visualizador de audio cuando se reproduce música.",
           "label": "Mostrar visualizador"
@@ -242,6 +267,9 @@
         }
       },
       "system-monitor": {
+        "cpu-critical-threshold": {
+          "label": "CPU Usage (Critical)"
+        },
         "cpu-temperature": {
           "description": "Mostrar lecturas de temperatura de CPU si están disponibles.",
           "label": "Temperatura de la CPU"
@@ -249,6 +277,25 @@
         "cpu-usage": {
           "description": "Mostrar el porcentaje actual de uso de CPU.",
           "label": "Uso de CPU"
+        },
+        "cpu-warning-threshold": {
+          "label": "CPU Usage (Warning)"
+        },
+        "disk-critical-threshold": {
+          "label": "Storage Space (Critical)"
+        },
+        "disk-path": {
+          "description": "Seleccione qué punto de montaje de disco desea supervisar.",
+          "label": "Ruta del disco"
+        },
+        "disk-warning-threshold": {
+          "label": "Storage Space (Warning)"
+        },
+        "mem-critical-threshold": {
+          "label": "Memory Usage (Critical)"
+        },
+        "mem-warning-threshold": {
+          "label": "Memory Usage (Warning)"
         },
         "memory-percentage": {
           "description": "Mostrar el uso de memoria como porcentaje en lugar de valores absolutos.",
@@ -265,6 +312,16 @@
         "storage-usage": {
           "description": "Mostrar información del uso del espacio en disco.",
           "label": "Uso de almacenamiento"
+        },
+        "temp-critical-threshold": {
+          "label": "CPU Temperature (Critical)"
+        },
+        "temp-warning-threshold": {
+          "label": "CPU Temperature (Warning)"
+        },
+        "thresholds": {
+          "description": "Establece umbrales para alertas de métricas del sistema. Resalta cuando se superan.",
+          "header": "Configuración de Umbrales"
         }
       },
       "taskbar": {
@@ -286,13 +343,9 @@
         }
       },
       "taskbar-grouped": {
-        "show-numbers-only-when-occupied": {
-          "description": "Mostrar números de espacio de trabajo solo para espacios de trabajo con ventanas abiertas.",
-          "label": "Mostrar números solo cuando estén ocupados"
-        },
-        "show-workspace-numbers": {
-          "description": "Mostrar números de espacio de trabajo en la esquina superior izquierda de los grupos de tareas.",
-          "label": "Mostrar números de espacio de trabajo"
+        "show-labels-only-when-occupied": {
+          "description": "Mostrar solo la etiqueta del espacio de trabajo para los espacios de trabajo que tienen ventanas abiertas.",
+          "label": "Mostrar etiqueta solo cuando esté ocupado."
         }
       },
       "tray": {
@@ -335,13 +388,6 @@
     "health": "Salud: {percent}%",
     "idle": "Inactivo.",
     "no-battery-detected": "No se detectó ninguna batería.",
-    "panel": {
-      "balanced": "Equilibrado ({percent}%)",
-      "disabled": "Administrador de batería deshabilitado",
-      "full": "Capacidad total ({percent}%)",
-      "lifespan": "Vida útil prolongada ({percent}%)",
-      "title": "Umbral de carga"
-    },
     "plugged-in": "Conectado.",
     "time-left": "Tiempo restante: {time}.",
     "time-until-full": "Tiempo hasta carga completa: {time}."
@@ -370,8 +416,60 @@
       "loading": "Cargando el clima…"
     }
   },
+  "changelog": {
+    "error": {
+      "fetch-failed": "No se pudieron cargar los datos del registro de cambios. Inténtalo de nuevo más tarde.",
+      "rate-limit": "Se alcanzó el límite de GitHub. Inténtalo de nuevo en unos minutos."
+    },
+    "panel": {
+      "buttons": {
+        "discord": "Únete a nuestro Discord",
+        "dismiss": "Ok"
+      },
+      "empty": "Las notas de la versión aún no están disponibles.",
+      "highlight-title": "Cambios destacados",
+      "section": {
+        "released": "Publicado el {date}",
+        "version": "Versión {version}"
+      },
+      "subtitle": {
+        "fresh": "Gracias por instalar Noctalia. Esto es lo que incluye esta compilación.",
+        "updated": "Actualizado desde {previousVersion}"
+      },
+      "title": "Novedades en {version}",
+      "version": {
+        "new-user": "Instalación nueva"
+      }
+    }
+  },
   "clock": {
     "tooltip": "Abrir calendario"
+  },
+  "context-menu": {
+    "activate-app": "Activar {app}",
+    "clear-history": "Borrar historial",
+    "close-app": "Cerrar {app}",
+    "connect-vpn": "Conectarse a {name}",
+    "cycle-visualizer": "Visualizador de ciclos",
+    "disable-bluetooth": "Desactivar Bluetooth",
+    "disable-dnd": "Desactivar No molestar",
+    "disable-wifi": "Desactivar Wi-Fi",
+    "disconnect-vpn": "Desconectar {name}",
+    "enable-bluetooth": "Activar Bluetooth",
+    "enable-dnd": "Activar No molestar",
+    "enable-wifi": "Activar Wi-Fi",
+    "next": "Siguiente",
+    "open-calendar": "Abrir calendario",
+    "open-display-settings": "Configuración de pantalla",
+    "open-launcher": "Abrir lanzador",
+    "open-mixer": "Mezclador de audio",
+    "open-settings": "Abrir ajustes",
+    "pause": "Pausa",
+    "play": "Jugar",
+    "previous": "Anterior",
+    "random-wallpaper": "Fondo de pantalla aleatorio",
+    "toggle-mute": "Activar/desactivar silencio",
+    "widget-settings": "Configuración del widget"
   },
   "dock": {
     "menu": {
@@ -536,6 +634,7 @@
     },
     "workspace-labels": {
       "index": "Índice",
+      "index+name": "Índice y Nombre",
       "name": "Nombre",
       "none": "Ninguno"
     }
@@ -551,6 +650,7 @@
     "search": "Buscar...",
     "search-icons": "ej., noctalia, niri, battery, cloud",
     "search-launcher": "Buscar entradas... o usa > para comandos",
+    "search-wallhaven": "Buscar en Wallhaven...",
     "search-wallpapers": "Escribe para filtrar fondos de pantalla...",
     "select": "Seleccionar",
     "test": "Probar"
@@ -647,13 +747,13 @@
   },
   "session-menu": {
     "action-in-seconds": "{action} en {seconds} segundos...",
+    "hibernate": "Hibernación",
     "lock": "Bloquear",
     "lock-and-suspend": "Bloquear y Suspender",
     "logout": "Cerrar sesión",
     "reboot": "Reiniciar",
     "shutdown": "Apagar",
     "suspend": "Suspender",
-    "hibernate": "Hibernación",
     "title": "Menú de sesión"
   },
   "settings": {
@@ -691,6 +791,11 @@
           "description": "Configura los dispositivos de entrada y salida de audio disponibles.",
           "label": "Dispositivos de audio"
         }
+      },
+      "external-mixer": {
+        "description": "Ingrese el comando o la ruta de la aplicación para ejecutar al activar la función de mezclador de audio externo.",
+        "label": "Comando de mezclador de audio externo",
+        "placeholder": "pwvucontrol || pavucontrol"
       },
       "media": {
         "excluded-player": {
@@ -765,6 +870,10 @@
         "background-opacity": {
           "description": "Ajusta la opacidad del fondo de la barra.",
           "label": "Opacidad del fondo"
+        },
+        "capsule-opacity": {
+          "description": "Establecer el nivel de opacidad para los fondos de los widgets cuando se muestra la cápsula.",
+          "label": "Opacidad de la cápsula"
         },
         "density": {
           "description": "Ajusta el relleno de la barra para un aspecto compacto o espacioso.",
@@ -857,6 +966,41 @@
           "description": "Cambia a un tema más oscuro para una visualización más fácil por la noche.",
           "label": "Modo oscuro"
         }
+      },
+      "delete": {
+        "error": {
+          "description": "Error al eliminar {scheme}",
+          "title": "Error al eliminar"
+        },
+        "success": {
+          "description": "{scheme} eliminado correctamente",
+          "title": "Esquema de colores eliminado"
+        }
+      },
+      "download": {
+        "button": "Descargar más",
+        "delete": "Eliminar",
+        "download": "Descargar",
+        "downloading": "Descargando...",
+        "empty": "No hay esquemas de colores disponibles",
+        "error": {
+          "api-error": "Error de API: {status}",
+          "description": "Error al descargar {scheme}",
+          "download-failed": "Error al descargar con código de salida: {code}",
+          "invalid-response": "Formato de respuesta de API inválido",
+          "no-files": "No se encontraron archivos para el esquema",
+          "parse-failed": "Error al analizar la respuesta de la API: {error}",
+          "rate-limit": "Límite de velocidad de la API de GitHub excedido",
+          "title": "Error al descargar"
+        },
+        "fetching": "Obteniendo esquemas de colores disponibles...",
+        "installed": "Instalado",
+        "refresh": "Actualizar",
+        "success": {
+          "description": "{scheme} descargado correctamente",
+          "title": "Esquema de colores descargado"
+        },
+        "title": "Descargar esquemas de colores"
       },
       "predefined": {
         "generate-templates": {
@@ -1096,6 +1240,10 @@
           "description": "Ajusta la opacidad del fondo del dock.",
           "label": "Opacidad del fondo"
         },
+        "border-radius": {
+          "description": "Ajustar el radio del borde del dock.",
+          "label": "Radio de borde"
+        },
         "colorize-icons": {
           "description": "Aplicar colores del tema a los iconos de aplicaciones del dock (solo aplicaciones no enfocadas).",
           "label": "Colorear iconos"
@@ -1247,6 +1395,10 @@
           "description": "Ajusta la opacidad del fondo del lanzador.",
           "label": "Opacidad del fondo"
         },
+        "clip-preview": {
+          "description": "Muestra una vista previa del contenido del portapapeles al usar el comando >clip.",
+          "label": "Activar vista previa del portapapeles"
+        },
         "clipboard-history": {
           "description": "Accede a los elementos copiados anteriormente desde el lanzador.",
           "label": "Activar historial del portapapeles"
@@ -1334,6 +1486,10 @@
         "section": {
           "description": "Elige tu unidad de temperatura preferida.",
           "label": "Clima"
+        },
+        "show-effects": {
+          "description": "Muestra efectos visuales adicionales (como lluvia, nieve o relámpagos) en la tarjeta del clima.",
+          "label": "Mostrar efectos climáticos"
         },
         "show-in-calendar": {
           "description": "Muestra el pronóstico del tiempo diario directamente en la vista de tu calendario.",
@@ -1569,15 +1725,75 @@
       "title": "Menú de sesión"
     },
     "system-monitor": {
+      "cpu-critical-threshold": {
+        "label": "Umbral crítico"
+      },
+      "cpu-section": {
+        "label": "Uso de CPU"
+      },
+      "cpu-warning-threshold": {
+        "label": "Umbral de advertencia"
+      },
+      "critical-color": {
+        "label": "Color crítico"
+      },
+      "custom-highlight-colors-title": {
+        "label": "Colores de resaltado personalizados"
+      },
+      "disk-critical-threshold": {
+        "label": "Umbral crítico"
+      },
+      "disk-section": {
+        "label": "Uso de disco"
+      },
+      "disk-warning-threshold": {
+        "label": "Umbral de advertencia"
+      },
       "general": {
         "section": {
           "description": "Configurar el comportamiento y la apariencia del Monitor del sistema.",
           "label": "General"
         }
       },
-      "title": "Monitor del sistema"
+      "highlight-colors-section": {
+        "label": "Colores de resaltado"
+      },
+      "mem-critical-threshold": {
+        "label": "Umbral crítico"
+      },
+      "mem-warning-threshold": {
+        "label": "Umbral de advertencia"
+      },
+      "memory-section": {
+        "label": "Uso de memoria"
+      },
+      "temp-critical-threshold": {
+        "label": "Umbral crítico"
+      },
+      "temp-warning-threshold": {
+        "label": "Umbral de advertencia"
+      },
+      "temperature-section": {
+        "label": "Temperatura de la CPU"
+      },
+      "thresholds-section": {
+        "description": "Establece umbrales para métricas del sistema; los valores por encima se resaltarán.",
+        "label": "Umbrales"
+      },
+      "title": "Monitor del sistema",
+      "use-custom-highlight-colors": {
+        "description": "Cuando está desactivado, se usan los colores de resaltado predeterminados del tema.",
+        "label": "Usar colores de resaltado personalizados"
+      },
+      "warning-color": {
+        "label": "Color de advertencia"
+      }
     },
     "user-interface": {
+      "allow-panels-without-bar": {
+        "description": "Cuando está activado, los paneles se pueden abrir en cualquier pantalla. Cuando está desactivado, los paneles solo se abrirán en las pantallas que tengan una barra, lo que puede reducir el uso de memoria.",
+        "label": "Permitir paneles en pantallas sin barra."
+      },
       "animation-disable": {
         "description": "Desactiva todas las animaciones para una experiencia más rápida y con mayor capacidad de respuesta.",
         "label": "Desactivar animaciones de la interfaz de usuario"
@@ -1595,6 +1811,11 @@
       "dim-desktop": {
         "description": "Atenuar el escritorio cuando los paneles o menús estén abiertos.",
         "label": "Dim escritorio"
+      },
+      "dimmer-opacity": {
+        "description": "Define el nivel de opacidad para el atenuado del escritorio.",
+        "label": "Opacidad del escritorio atenuado",
+        "reset": "Restablecer la opacidad del escritorio atenuado"
       },
       "panel-background-opacity": {
         "description": "Establecer la opacidad de fondo para todos los paneles (Launcher, Centro de control, Configuración, etc.).",
@@ -1711,6 +1932,11 @@
         },
         "select-folder": "Seleccionar carpeta de fondos de pantalla",
         "select-monitor-folder": "Seleccionar carpeta de fondos de pantalla del monitor",
+        "selector": {
+          "description": "Elige tu fondo de pantalla.",
+          "label": "Selector de fondo de pantalla",
+          "tooltip": "Abrir el selector de fondo de pantalla"
+        },
         "selector-position": {
           "description": "Elige dónde aparece el panel selector de fondo de pantalla.",
           "label": "Posición"
@@ -1774,19 +2000,6 @@
     "battery": {
       "low": "Batería baja",
       "low-desc": "La batería está al {percent}%. Por favor, conecta el cargador."
-    },
-    "battery-manager": {
-      "initial-setup": "Configuración inicial requerida",
-      "install-failed": "Error en la instalación",
-      "install-missing": "Faltan archivos requeridos",
-      "install-success": "Instalado correctamente",
-      "install-unsupported": "El sistema no es compatible",
-      "set-failed": "No se pudo establecer el umbral de batería",
-      "set-success-desc": "Umbral de batería establecido en {percent}%",
-      "title": "Umbral de batería",
-      "uninstall-failed": "Error en la desinstalación",
-      "uninstall-setup": "Desinstalando, se requiere autenticación",
-      "uninstall-success": "Desinstalado correctamente"
     },
     "bluetooth": {
       "disabled": "Desactivado",
@@ -1856,6 +2069,10 @@
       "title-matugen": "Falló el procesamiento de la plantilla Matugen.",
       "title-predefined": "Falló el procesamiento del esquema de color predefinido."
     },
+    "vpn": {
+      "connected": "Conectado a '{name}'",
+      "disconnected": "Desconectado de '{name}'"
+    },
     "wallpaper-colors": {
       "disabled": "Colores del fondo de pantalla desactivados",
       "enabled": "Colores del fondo de pantalla activados",
@@ -1889,6 +2106,7 @@
     "input-muted": "Silenciar entrada de audio",
     "keep-awake": "Mantener despierto",
     "keyboard-layout": "Distribución de teclado {layout}",
+    "manage-vpn": "Administrar conexiones VPN",
     "manage-wifi": "Gestionar Wi-Fi",
     "microphone-volume-at": "Volumen del micrófono al {volume}%.\nClic izquierdo para ajustes. Clic derecho para activar/desactivar el silencio.\nDesplázate para modificar el volumen.",
     "move-to-center-section": "Mover a la sección central",
@@ -1916,6 +2134,7 @@
     "previous-month": "Mes anterior",
     "refresh": "Actualizar",
     "refresh-devices": "Actualizar dispositivos",
+    "refresh-wallhaven": "Actualizar resultados de Wallhaven",
     "refresh-wallpaper-list": "Actualizar lista de fondos de pantalla",
     "remove-widget": "Eliminar widget",
     "screen-recorder-not-installed": "La grabadora de pantalla no está instalada",
@@ -1945,8 +2164,51 @@
         "description": "Aplica el fondo de pantalla seleccionado a todos los monitores a la vez.",
         "label": "Aplicar a todos los monitores"
       },
+      "categories": {
+        "anime": "Anime",
+        "general": "General",
+        "label": "Categorías",
+        "people": "Personas"
+      },
+      "order": {
+        "asc": "Ascendente",
+        "desc": "Descendente",
+        "label": "Orden"
+      },
+      "purity": {
+        "all": "Todo",
+        "label": "Filtro de contenido",
+        "sfw": "SFW",
+        "sketchy": "Sketchy"
+      },
+      "resolution": {
+        "atleast": "Al menos",
+        "exact": "Exacto",
+        "label": "Resolución",
+        "mode": {
+          "label": "Modo"
+        }
+      },
       "search": "Buscar:",
-      "title": "Selector de fondo de pantalla"
+      "sorting": {
+        "date_added": "Fecha de adición",
+        "favorites": "Favoritos",
+        "label": "Ordenar por",
+        "random": "Aleatorio",
+        "relevance": "Relevancia",
+        "toplist": "Lista superior",
+        "views": "Visualizaciones"
+      },
+      "source": {
+        "label": "Fuente",
+        "local": "Local",
+        "wallhaven": "Wallhaven"
+      },
+      "title": "Selector de fondo de pantalla",
+      "wallhaven-settings": {
+        "apply": "Aplicar",
+        "title": "Configuración de Wallhaven"
+      }
     },
     "transitions": {
       "disc": "Disco",
@@ -1956,7 +2218,13 @@
       "stripes": "Rayas",
       "wipe": "Barrido"
     },
-    "try-different-search": "Intenta con una búsqueda diferente."
+    "try-different-search": "Intenta con una búsqueda diferente.",
+    "unknown": "Desconocido",
+    "wallhaven": {
+      "loading": "Cargando fondos de pantalla...",
+      "no-results": "No se encontraron fondos de pantalla. Intenta con una búsqueda diferente.",
+      "page": "{current} de {total}"
+    }
   },
   "weather": {
     "clear-sky": "Cielo despejado",
@@ -2065,6 +2333,7 @@
   },
   "wifi": {
     "panel": {
+      "available-networks": "Redes disponibles",
       "connect": "Conectar",
       "connected": "Conectado",
       "disabled": "Wi-Fi está desactivado",
@@ -2075,6 +2344,7 @@
       "forget": "Olvidar",
       "forget-network": "¿Olvidar esta red?",
       "forgetting": "Olvidando...",
+      "known-networks": "Redes conocidas",
       "no-networks": "No se encontraron redes",
       "password": "Contraseña",
       "saved": "Guardado",

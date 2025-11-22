@@ -8,6 +8,8 @@ import qs.Widgets
 Item {
   id: root
 
+  required property ShellScreen screen
+
   property string icon: ""
   property string text: ""
   property string suffix: ""
@@ -19,6 +21,8 @@ Item {
   property bool oppositeDirection: false
   property bool hovered: false
   property bool rotateText: false
+  property color customBackgroundColor: Qt.rgba(0, 0, 0, 0)
+  property color customTextIconColor: Qt.rgba(0, 0, 0, 0)
 
   // Bar position detection for pill direction
   readonly property string barPosition: Settings.data.bar.position
@@ -47,26 +51,25 @@ Item {
   // Sizing logic for vertical bars
   readonly property int buttonSize: Style.capsuleHeight
   readonly property int pillHeight: buttonSize
-  readonly property int pillPaddingVertical: 3 * 2 // Very precise adjustment don't replace by Style.margin
   readonly property int pillOverlap: Math.round(buttonSize * 0.5)
-  readonly property int maxPillWidth: rotateText ? Math.max(buttonSize, Math.round(textItem.implicitHeight + pillPaddingVertical * 2)) : buttonSize
-  readonly property int maxPillHeight: rotateText ? Math.max(1, Math.round(textItem.implicitWidth + pillPaddingVertical * 2 + Math.round(iconCircle.height / 4))) : Math.max(1, Math.round(textItem.implicitHeight + pillPaddingVertical * 4))
+  readonly property int maxPillWidth: rotateText ? Math.max(buttonSize, Math.round(textItem.implicitHeight + Style.marginM * 2)) : buttonSize
+  readonly property int maxPillHeight: rotateText ? Math.max(1, Math.round(textItem.implicitWidth + Style.marginM * 2 + Math.round(iconCircle.height / 4))) : Math.max(1, Math.round(textItem.implicitHeight + Style.marginM * 2))
 
   readonly property real iconSize: {
     switch (root.density) {
     case "compact":
-      return Math.max(1, Math.round(pillHeight * 0.65))
+      return Math.max(1, Math.round(pillHeight * 0.65));
     default:
-      return Math.max(1, Math.round(pillHeight * 0.48))
+      return Math.max(1, Math.round(pillHeight * 0.48));
     }
   }
 
   readonly property real textSize: {
     switch (root.density) {
     case "compact":
-      return Math.max(1, Math.round(pillHeight * 0.38))
+      return Math.max(1, Math.round(pillHeight * 0.38));
     default:
-      return Math.max(1, Math.round(pillHeight * 0.33))
+      return Math.max(1, Math.round(pillHeight * 0.33));
     }
   }
 
@@ -78,7 +81,25 @@ Item {
     target: root
     function onTooltipTextChanged() {
       if (hovered) {
-        TooltipService.updateText(root.tooltipText)
+        TooltipService.updateText(root.tooltipText);
+      }
+    }
+  }
+
+  // Unified background for the entire pill area to avoid overlapping opacity
+  Rectangle {
+    id: pillBackground
+    width: buttonSize
+    height: revealed ? (buttonSize + maxPillHeight - pillOverlap) : buttonSize
+    radius: halfButtonSize
+    color: hovered ? (customBackgroundColor.a > 0 ? Qt.lighter(customBackgroundColor, 1.1) : Color.mHover) : (customBackgroundColor.a > 0 ? customBackgroundColor : Style.capsuleColor)
+
+    readonly property int halfButtonSize: Math.round(buttonSize * 0.5)
+
+    Behavior on color {
+      ColorAnimation {
+        duration: Style.animationNormal
+        easing.type: Easing.InOutQuad
       }
     }
   }
@@ -94,7 +115,7 @@ Item {
     y: openUpward ? (iconCircle.y + iconCircle.height / 2 - height) : (iconCircle.y + iconCircle.height / 2)
 
     opacity: revealed ? Style.opacityFull : Style.opacityNone
-    color: Settings.data.bar.showCapsule ? Color.mSurfaceVariant : Color.transparent
+    color: Color.transparent // Make pill background transparent to avoid double opacity
 
     readonly property int thirdButtonSize: Math.round(buttonSize * 0.33)
 
@@ -110,7 +131,7 @@ Item {
       id: textItem
       anchors.horizontalCenter: parent.horizontalCenter
       anchors.verticalCenter: parent.verticalCenter
-      anchors.verticalCenterOffset: rotateText ? Math.round(iconCircle.height / 4) : getVerticalCenterOffset()
+      anchors.verticalCenterOffset: openDownward ? Style.marginXXS : -Style.marginXXS
       rotation: rotateText ? -90 : 0
       text: root.text + root.suffix
       family: Settings.data.ui.fontFixed
@@ -119,15 +140,12 @@ Item {
       font.weight: Style.fontWeightMedium
       horizontalAlignment: Text.AlignHCenter
       verticalAlignment: Text.AlignVCenter
-      color: forceOpen ? Color.mOnSurface : Color.mPrimary
+      color: hovered ? (customTextIconColor.a > 0 ? customTextIconColor : Color.mOnHover) : (customTextIconColor.a > 0 ? customTextIconColor : (forceOpen ? Color.mOnSurface : Color.mPrimary))
       visible: revealed
 
       function getVerticalCenterOffset() {
-        var offset = openDownward ? Math.round(pillPaddingVertical * 0.75) : -Math.round(pillPaddingVertical * 0.75)
-        if (forceOpen) {
-          offset += oppositeDirection ? -Style.marginXXS : Style.marginXXS
-        }
-        return offset
+        // A small, symmetrical offset to push the text slightly away from the icon's edge.
+        return openDownward ? Style.marginXS : -Style.marginXS;
       }
     }
     Behavior on width {
@@ -158,25 +176,18 @@ Item {
     width: buttonSize
     height: buttonSize
     radius: width * 0.5
-    color: hovered ? Color.mHover : Settings.data.bar.showCapsule ? Color.mSurfaceVariant : Color.transparent
+    color: Color.transparent // Make icon background transparent to avoid double opacity
 
     // Icon positioning based on direction
     x: 0
     y: openUpward ? (parent.height - height) : 0
     anchors.horizontalCenter: parent.horizontalCenter
 
-    Behavior on color {
-      ColorAnimation {
-        duration: Style.animationNormal
-        easing.type: Easing.InOutQuad
-      }
-    }
-
     NIcon {
       icon: root.icon
       pointSize: iconSize
       applyUiScale: false
-      color: hovered ? Color.mOnHover : Color.mOnSurface
+      color: hovered ? (customTextIconColor.a > 0 ? customTextIconColor : Color.mOnHover) : (customTextIconColor.a > 0 ? customTextIconColor : Color.mOnSurface)
       // Center horizontally
       x: (iconCircle.width - width) / 2
       // Center vertically accounting for font metrics
@@ -212,11 +223,11 @@ Item {
       easing.type: Easing.OutCubic
     }
     onStarted: {
-      showPill = true
+      showPill = true;
     }
     onStopped: {
-      delayedHideAnim.start()
-      root.shown()
+      delayedHideAnim.start();
+      root.shown();
     }
   }
 
@@ -228,7 +239,7 @@ Item {
     }
     ScriptAction {
       script: if (shouldAnimateHide) {
-                hideAnim.start()
+                hideAnim.start();
               }
     }
   }
@@ -261,9 +272,9 @@ Item {
       easing.type: Easing.InCubic
     }
     onStopped: {
-      showPill = false
-      shouldAnimateHide = false
-      root.hidden()
+      showPill = false;
+      shouldAnimateHide = false;
+      root.hidden();
     }
   }
 
@@ -272,7 +283,7 @@ Item {
     interval: Style.pillDelay
     onTriggered: {
       if (!showPill) {
-        showAnim.start()
+        showAnim.start();
       }
     }
   }
@@ -282,31 +293,31 @@ Item {
     hoverEnabled: true
     acceptedButtons: Qt.LeftButton | Qt.RightButton | Qt.MiddleButton
     onEntered: {
-      hovered = true
-      root.entered()
-      TooltipService.show(Screen, pill, root.tooltipText, BarService.getTooltipDirection(), Style.tooltipDelayLong)
+      hovered = true;
+      root.entered();
+      TooltipService.show(pill, root.tooltipText, BarService.getTooltipDirection(), Style.tooltipDelayLong);
       if (forceClose) {
-        return
+        return;
       }
       if (!forceOpen) {
-        showDelayed()
+        showDelayed();
       }
     }
     onExited: {
-      hovered = false
-      root.exited()
+      hovered = false;
+      root.exited();
       if (!forceOpen && !forceClose) {
-        hide()
+        hide();
       }
-      TooltipService.hide()
+      TooltipService.hide();
     }
     onClicked: function (mouse) {
       if (mouse.button === Qt.LeftButton) {
-        root.clicked()
+        root.clicked();
       } else if (mouse.button === Qt.RightButton) {
-        root.rightClicked()
+        root.rightClicked();
       } else if (mouse.button === Qt.MiddleButton) {
-        root.middleClicked()
+        root.middleClicked();
       }
     }
     onWheel: wheel => root.wheel(wheel.angleDelta.y)
@@ -314,43 +325,43 @@ Item {
 
   function show() {
     if (!showPill) {
-      shouldAnimateHide = autoHide
-      showAnim.start()
+      shouldAnimateHide = autoHide;
+      showAnim.start();
     } else {
-      hideAnim.stop()
-      delayedHideAnim.restart()
+      hideAnim.stop();
+      delayedHideAnim.restart();
     }
   }
 
   function hide() {
     if (forceOpen) {
-      return
+      return;
     }
     if (showPill) {
-      hideAnim.start()
+      hideAnim.start();
     }
-    showTimer.stop()
+    showTimer.stop();
   }
 
   function showDelayed() {
     if (!showPill) {
-      shouldAnimateHide = autoHide
-      showTimer.start()
+      shouldAnimateHide = autoHide;
+      showTimer.start();
     } else {
-      hideAnim.stop()
-      delayedHideAnim.restart()
+      hideAnim.stop();
+      delayedHideAnim.restart();
     }
   }
 
   onForceOpenChanged: {
     if (forceOpen) {
       // Immediately lock open without animations
-      showAnim.stop()
-      hideAnim.stop()
-      delayedHideAnim.stop()
-      showPill = true
+      showAnim.stop();
+      hideAnim.stop();
+      delayedHideAnim.stop();
+      showPill = true;
     } else {
-      hide()
+      hide();
     }
   }
 }

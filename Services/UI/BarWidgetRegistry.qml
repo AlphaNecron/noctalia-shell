@@ -12,8 +12,7 @@ Singleton {
   property var widgets: ({
                            "ActiveWindow": activeWindowComponent,
                            "AudioVisualizer": audioVisualizerComponent,
-                           "Battery"// HEAVY
-                           : batteryComponent,
+                           "Battery": batteryComponent,
                            "Bluetooth": bluetoothComponent,
                            "Brightness": brightnessComponent,
                            "Clock": clockComponent,
@@ -28,22 +27,46 @@ Singleton {
                            "NightLight": nightLightComponent,
                            "NoctaliaPerformance": noctaliaPerformanceComponent,
                            "NotificationHistory": notificationHistoryComponent,
-                           "PowerProfile"// HEAVY
-                           : powerProfileComponent,
+                           "PowerProfile": powerProfileComponent,
                            "ScreenRecorder": screenRecorderComponent,
                            "SessionMenu": sessionMenuComponent,
                            "Spacer": spacerComponent,
                            "SystemMonitor": systemMonitorComponent,
-                           "Taskbar"// HEAVY
-                           : taskbarComponent,
+                           "Taskbar": taskbarComponent,
                            "TaskbarGrouped": taskbarGroupedComponent,
                            "Tray": trayComponent,
-                           "Volume"// A BIT HEAVY ?
-                           : volumeComponent,
+                           "Volume": volumeComponent,
+                           "VPN": vpnComponent,
                            "WiFi": wiFiComponent,
                            "WallpaperSelector": wallpaperSelectorComponent,
-                           "Workspace": workspaceComponent // HEAVY
+                           "Workspace": workspaceComponent
                          })
+
+  property var widgetSettingsMap: ({
+                                     "ActiveWindow": "WidgetSettings/ActiveWindowSettings.qml",
+                                     "AudioVisualizer": "WidgetSettings/AudioVisualizerSettings.qml",
+                                     "Battery": "WidgetSettings/BatterySettings.qml",
+                                     "Bluetooth": "WidgetSettings/BluetoothSettings.qml",
+                                     "Brightness": "WidgetSettings/BrightnessSettings.qml",
+                                     "Clock": "WidgetSettings/ClockSettings.qml",
+                                     "ControlCenter": "WidgetSettings/ControlCenterSettings.qml",
+                                     "CustomButton": "WidgetSettings/CustomButtonSettings.qml",
+                                     "KeyboardLayout": "WidgetSettings/KeyboardLayoutSettings.qml",
+                                     "LockKeys": "WidgetSettings/LockKeysSettings.qml",
+                                     "MediaMini": "WidgetSettings/MediaMiniSettings.qml",
+                                     "Microphone": "WidgetSettings/MicrophoneSettings.qml",
+                                     "NotificationHistory": "WidgetSettings/NotificationHistorySettings.qml",
+                                     "SessionMenu": "WidgetSettings/SessionMenuSettings.qml",
+                                     "Spacer": "WidgetSettings/SpacerSettings.qml",
+                                     "SystemMonitor": "WidgetSettings/SystemMonitorSettings.qml",
+                                     "Taskbar": "WidgetSettings/TaskbarSettings.qml",
+                                     "TaskbarGrouped": "WidgetSettings/TaskbarGroupedSettings.qml",
+                                     "Tray": "WidgetSettings/TraySettings.qml",
+                                     "Volume": "WidgetSettings/VolumeSettings.qml",
+                                     "VPN": "WidgetSettings/VPNSettings.qml",
+                                     "WiFi": "WidgetSettings/WiFiSettings.qml",
+                                     "Workspace": "WidgetSettings/WorkspaceSettings.qml"
+                                   })
 
   property var widgetMetadata: ({
                                   "ActiveWindow": {
@@ -103,7 +126,17 @@ Singleton {
                                     "textIntervalMs": 3000,
                                     "textCollapse": "",
                                     "parseJson": false,
-                                    "hideTextInVerticalBar": false
+                                    "wheelExec": "",
+                                    "wheelUpExec": "",
+                                    "wheelDownExec": "",
+                                    "wheelMode": "unified",
+                                    "wheelUpdateText": false,
+                                    "wheelUpUpdateText": false,
+                                    "wheelDownUpdateText": false,
+                                    "maxTextLength": {
+                                      "horizontal": 10,
+                                      "vertical": 10
+                                    }
                                   },
                                   "KeyboardLayout": {
                                     "allowUserSettings": true,
@@ -126,6 +159,7 @@ Singleton {
                                     "useFixedWidth": false,
                                     "hideWhenIdle": false,
                                     "showAlbumArt": false,
+                                    "showArtistFirst": true,
                                     "showVisualizer": false,
                                     "visualizerType": "linear"
                                   },
@@ -137,6 +171,10 @@ Singleton {
                                     "allowUserSettings": true,
                                     "showUnreadBadge": true,
                                     "hideWhenZero": true
+                                  },
+                                  "SessionMenu": {
+                                    "allowUserSettings": true,
+                                    "colorName": "error"
                                   },
                                   "Spacer": {
                                     "allowUserSettings": true,
@@ -150,7 +188,8 @@ Singleton {
                                     "showMemoryUsage": true,
                                     "showMemoryAsPercent": false,
                                     "showNetworkStats": false,
-                                    "showDiskUsage": false
+                                    "showDiskUsage": false,
+                                    "diskPath": "/"
                                   },
                                   "Taskbar": {
                                     "allowUserSettings": true,
@@ -161,11 +200,9 @@ Singleton {
                                   },
                                   "TaskbarGrouped": {
                                     "allowUserSettings": true,
-                                    "showWorkspaceNumbers": true,
-                                    "showNumbersOnlyWhenOccupied": true,
-                                    "labelMode": "index",
                                     "hideUnoccupied": false,
-                                    "characterCount": 2,
+                                    "labelMode": "index",
+                                    "showLabelsOnlyWhenOccupied": true,
                                     "colorizeIcons": false
                                   },
                                   "Tray": {
@@ -174,6 +211,10 @@ Singleton {
                                     "colorizeIcons": false,
                                     "pinned": [],
                                     "drawerEnabled": true
+                                  },
+                                  "VPN": {
+                                    "allowUserSettings": true,
+                                    "displayMode": "onhover"
                                   },
                                   "WiFi": {
                                     "allowUserSettings": true,
@@ -264,6 +305,9 @@ Singleton {
   property Component volumeComponent: Component {
     Volume {}
   }
+  property Component vpnComponent: Component {
+    VPN {}
+  }
   property Component wiFiComponent: Component {
     WiFi {}
   }
@@ -281,27 +325,27 @@ Singleton {
   }
 
   function init() {
-    Logger.i("BarWidgetRegistry", "Service started")
+    Logger.i("BarWidgetRegistry", "Service started");
   }
 
   // ------------------------------
   // Helper function to get widget component by name
   function getWidget(id) {
-    return widgets[id] || null
+    return widgets[id] || null;
   }
 
   // Helper function to check if widget exists
   function hasWidget(id) {
-    return id in widgets
+    return id in widgets;
   }
 
   // Get list of available widget id
   function getAvailableWidgets() {
-    return Object.keys(widgets)
+    return Object.keys(widgets);
   }
 
   // Helper function to check if widget has user settings
   function widgetHasUserSettings(id) {
-    return (widgetMetadata[id] !== undefined) && (widgetMetadata[id].allowUserSettings === true)
+    return (widgetMetadata[id] !== undefined) && (widgetMetadata[id].allowUserSettings === true);
   }
 }
